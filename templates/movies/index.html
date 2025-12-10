@@ -1,0 +1,556 @@
+{% extends "base.html" %} {% block title %}Movies - CineWave{% endblock %} {%
+block head %}
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  rel="stylesheet"
+/>
+<style>
+  /* Video container styling */
+  .video-section {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .trailer-container-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    background: var(--secondary-dark);
+  }
+
+  .trailer-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+  }
+
+  .trailer-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Ensure poster is visible */
+  .trailer-container video[poster] {
+    background-color: var(--secondary-dark);
+  }
+
+  .video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(rgba(10, 25, 47, 0.7), rgba(10, 25, 47, 0.5));
+    transition: all 0.3s ease;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .video-overlay:hover {
+    background: linear-gradient(rgba(10, 25, 47, 0.8), rgba(10, 25, 47, 0.6));
+  }
+
+  .video-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .play-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(29, 78, 216, 0.9);
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(29, 78, 216, 0.4);
+  }
+
+  .play-btn:hover {
+    transform: scale(1.1);
+    background: rgba(29, 78, 216, 1);
+    box-shadow: 0 12px 30px rgba(29, 78, 216, 0.6);
+  }
+
+  .play-btn i {
+    margin-left: 5px; /* Center the play icon */
+  }
+
+  /* Movie card styling */
+  .movie-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+  }
+
+  .movie-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow);
+  }
+
+  .movie-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+  }
+
+  .movie-info {
+    padding: 1rem;
+  }
+
+  .movie-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+  }
+
+  .movie-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  /* Genre card styling */
+  .genre-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .genre-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-blue);
+    box-shadow: var(--shadow);
+  }
+
+  /* Hero section improvements */
+  .hero-content {
+    padding-right: 2rem;
+  }
+
+  @media (max-width: 992px) {
+    .hero-content {
+      padding-right: 0;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .trailer-container-wrapper {
+      max-width: 100%;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section
+  class="py-5 mt-5"
+  style="
+    background: linear-gradient(
+      135deg,
+      var(--primary-dark) 0%,
+      var(--tertiary-dark) 100%
+    );
+  "
+>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 hero-content">
+        <h1 class="display-4 fw-bold mb-3" style="color: var(--primary-blue)">
+          Unlimited Movies
+        </h1>
+        <p class="lead mb-4" style="color: var(--text-secondary)">
+          Stream thousands of movies and TV shows. Watch anywhere. Cancel
+          anytime.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          {% if current_user.is_authenticated %}
+          <a
+            href="{{ url_for('recommendations') }}"
+            class="btn btn-primary btn-lg"
+          >
+            <i class="fas fa-play me-2"></i>Start Watching
+          </a>
+          {% else %}
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-user-plus me-2"></i>Get Started
+          </a>
+          <a
+            href="{{ url_for('login') }}"
+            class="btn btn-outline-primary btn-lg"
+          >
+            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-6 video-section">
+        <div class="trailer-container-wrapper">
+          <div class="trailer-container">
+            <!-- Fixed video with proper containment -->
+            <video
+              id="heroVideo"
+              controls
+              preload="metadata"
+              poster="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            >
+              <source
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+            <!-- Custom play button overlay -->
+            <div class="video-overlay" id="videoOverlay">
+              <button class="play-btn" id="playVideoBtn">
+                <i class="fas fa-play fa-2x"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- In index.html - Update the movie card section -->
+
+<!-- Trending Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h3" style="color: var(--text-primary)">
+        <i class="fas fa-fire me-2" style="color: var(--primary-blue)"></i>
+        Trending Now
+      </h2>
+      <a
+        href="{{ url_for('search') }}?sort=trending"
+        class="btn btn-outline-primary btn-sm"
+      >
+        View All <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <div class="row" id="trending-movies">
+      {% if movies %} {% for movie in movies[:6] %}
+      <div class="col-md-4 col-lg-2 mb-4">
+        <div class="movie-card h-100">
+          <div class="position-relative">
+            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+              <img
+                src="{{ movie.poster_url or 'https://via.placeholder.com/300x450/172a45/8892b0?text=No+Poster' }}"
+                alt="{{ movie.title }}"
+                class="img-fluid"
+              />
+            </a>
+            <div class="position-absolute top-0 end-0 m-2">
+              <span
+                class="badge"
+                style="
+                  background-color: var(--primary-blue);
+                  color: var(--primary-dark);
+                "
+              >
+                <i class="fas fa-star me-1"></i>{{
+                "%.1f"|format(movie.average_rating) }}
+              </span>
+            </div>
+            <!-- DOWNLOAD BUTTON ON HOVER -->
+            <div class="position-absolute bottom-0 start-0 w-100 p-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <a
+                  href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                  class="btn btn-sm btn-primary"
+                >
+                  <i class="fas fa-play me-1"></i>Watch
+                </a>
+                {% if movie.download_enabled %}
+                <a
+                  href="{{ url_for('request_movie_download', movie_id=movie.id) }}"
+                  class="btn btn-sm btn-success"
+                  title="Download {{ movie.title }}"
+                >
+                  <i class="fas fa-download"></i>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="movie-info">
+            <h6 class="movie-title">
+              <a
+                href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                class="text-decoration-none text-white"
+              >
+                {{ movie.title }}
+              </a>
+            </h6>
+            <div class="movie-meta">
+              <span>{{ movie.release_year or 'N/A' }}</span>
+              <span>{{ movie.duration }} min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <div class="col-12">
+        <div class="text-center py-5">
+          <i
+            class="fas fa-film fa-3x mb-3"
+            style="color: var(--text-secondary)"
+          ></i>
+          <p class="text-secondary">
+            No movies available yet. Check back soon!
+          </p>
+          {% if current_user.is_authenticated and current_user.is_admin %}
+          <a href="{{ url_for('admin_add_movie') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add First Movie
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Latest Releases Section - Also update this -->
+<section class="py-5" style="background-color: var(--secondary-dark)">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h3" style="color: var(--text-primary)">
+        <i class="fas fa-clock me-2" style="color: var(--primary-blue)"></i>
+        Latest Releases
+      </h2>
+      <a
+        href="{{ url_for('search') }}?sort=newest"
+        class="btn btn-outline-primary btn-sm"
+      >
+        View All <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <div class="row" id="latest-movies">
+      {% if movies %} {% for movie in movies[6:12] if movies|length > 6 %}
+      <div class="col-md-4 col-lg-2 mb-4">
+        <div class="movie-card h-100">
+          <div class="position-relative">
+            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+              <img
+                src="{{ movie.poster_url or 'https://via.placeholder.com/300x450/172a45/8892b0?text=No+Poster' }}"
+                alt="{{ movie.title }}"
+                class="img-fluid"
+              />
+            </a>
+            <div
+              class="position-absolute bottom-0 start-0 w-100 p-2"
+              style="
+                background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+              "
+            >
+              <span class="badge bg-info">NEW</span>
+            </div>
+            <!-- DOWNLOAD BUTTON ON HOVER -->
+            <div class="position-absolute bottom-0 start-0 w-100 p-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <a
+                  href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                  class="btn btn-sm btn-primary"
+                >
+                  <i class="fas fa-play me-1"></i>Watch
+                </a>
+                {% if movie.download_enabled %}
+                <a
+                  href="{{ url_for('request_movie_download', movie_id=movie.id) }}"
+                  class="btn btn-sm btn-success"
+                  title="Download {{ movie.title }}"
+                >
+                  <i class="fas fa-download"></i>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="movie-info">
+            <h6 class="movie-title">
+              <a
+                href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+                class="text-decoration-none text-white"
+              >
+                {{ movie.title }}
+              </a>
+            </h6>
+            <div class="movie-meta">
+              <span>{{ movie.release_year or 'N/A' }}</span>
+              <span>
+                <i class="fas fa-eye me-1"></i>{{ movie.views_count }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %} {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Genre Filter -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="h3 mb-4" style="color: var(--text-primary)">
+      <i class="fas fa-filter me-2" style="color: var(--primary-blue)"></i>
+      Browse by Genre
+    </h2>
+
+    <div class="row" id="genre-filters">
+      {% if genres %} {% for genre in genres %}
+      <div class="col-md-3 col-lg-2 mb-3">
+        <a
+          href="{{ url_for('search') }}?genre={{ genre.id }}"
+          class="text-decoration-none"
+        >
+          <div class="genre-card text-center p-3">
+            <i
+              class="fas fa-theater-masks fa-2x mb-2"
+              style="color: var(--primary-blue)"
+            ></i>
+            <h6 class="mb-0" style="color: var(--text-primary)">
+              {{ genre.name }}
+            </h6>
+          </div>
+        </a>
+      </div>
+      {% endfor %} {% else %}
+      <div class="col-12">
+        <div class="text-center py-3">
+          <p class="text-secondary">No genres available yet.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section
+  class="py-5"
+  style="
+    background: linear-gradient(
+      135deg,
+      var(--tertiary-dark) 0%,
+      var(--primary-dark) 100%
+    );
+  "
+>
+  <div class="container text-center">
+    <h2 class="mb-3" style="color: var(--text-primary)">
+      Ready to watch? Create your free account.
+    </h2>
+    <p class="lead mb-4" style="color: var(--text-secondary)">
+      No commitments. Cancel anytime.
+    </p>
+    <a
+      href="{{ url_for('register') if not current_user.is_authenticated else url_for('dashboard') }}"
+      class="btn btn-primary btn-lg"
+    >
+      <i class="fas fa-play me-2"></i>
+      {% if current_user.is_authenticated %}Continue Watching{% else %}Get
+      Started{% endif %}
+    </a>
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const video = document.getElementById("heroVideo");
+    const videoOverlay = document.getElementById("videoOverlay");
+    const playBtn = document.getElementById("playVideoBtn");
+
+    if (video && videoOverlay && playBtn) {
+      // Show overlay initially
+      videoOverlay.classList.remove("hidden");
+
+      // Play video when custom button is clicked
+      playBtn.addEventListener("click", function () {
+        video.play().catch(function (error) {
+          console.log("Video play failed:", error);
+          // If autoplay is blocked, show controls
+          video.controls = true;
+        });
+        videoOverlay.classList.add("hidden");
+      });
+
+      // Show overlay when video is paused
+      video.addEventListener("pause", function () {
+        videoOverlay.classList.remove("hidden");
+      });
+
+      // Hide overlay when video is playing
+      video.addEventListener("play", function () {
+        videoOverlay.classList.add("hidden");
+      });
+
+      // Show overlay when video ends
+      video.addEventListener("ended", function () {
+        videoOverlay.classList.remove("hidden");
+      });
+
+      // Handle click on video to pause/play
+      video.addEventListener("click", function () {
+        if (video.paused) {
+          video.play();
+        } else {
+          video.pause();
+        }
+      });
+
+      // Handle autoplay policy
+      if (video.paused) {
+        videoOverlay.classList.remove("hidden");
+      }
+    }
+
+    // Add subtle animation to play button
+    const playButton = document.getElementById("playVideoBtn");
+    if (playButton) {
+      setInterval(() => {
+        playButton.style.transform = "scale(1.05)";
+        setTimeout(() => {
+          playButton.style.transform = "scale(1)";
+        }, 500);
+      }, 3000);
+    }
+  });
+</script>
+{% endblock %}

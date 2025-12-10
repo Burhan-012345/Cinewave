@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Search - CineWave{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <!-- Filters Sidebar -->
+            <div class="card sticky-top" style="top: 100px; background: var(--card-bg); border-color: var(--border-color);">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-filter me-2" style="color: var(--primary-blue);"></i>Filters
+                    </h5>
+                    
+                    <form method="GET" action="{{ url_for('search') }}">
+                        <!-- Search Input -->
+                        <div class="mb-3">
+                            <label for="q" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="q" name="q" 
+                                   value="{{ query }}" placeholder="Movie title...">
+                        </div>
+                        
+                        <!-- Genre Filter -->
+                        <div class="mb-3">
+                            <label for="genre" class="form-label">Genre</label>
+                            <select class="form-select" id="genre" name="genre">
+                                <option value="">All Genres</option>
+                                {% for genre in genres %}
+                                <option value="{{ genre.id }}" {% if selected_genre == genre.id %}selected{% endif %}>
+                                    {{ genre.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Year Filter -->
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Release Year</label>
+                            <select class="form-select" id="year" name="year">
+                                <option value="">Any Year</option>
+                                {% for year in years|sort(reverse=true) %}
+                                <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Sort Options -->
+                        <div class="mb-4">
+                            <label for="sort" class="form-label">Sort By</label>
+                            <select class="form-select" id="sort" name="sort">
+                                <option value="">Relevance</option>
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="rating">Highest Rated</option>
+                                <option value="views">Most Viewed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Apply Filters
+                            </button>
+                            <a href="{{ url_for('search') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-redo me-2"></i>Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <!-- Search Results -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4" style="color: var(--text-primary);">
+                        {% if query %}
+                            Search Results for "{{ query }}"
+                        {% else %}
+                            Browse All Movies
+                        {% endif %}
+                    </h2>
+                    <p class="text-secondary mb-0">
+                        {{ movies|length }} movie{% if movies|length != 1 %}s{% endif %} found
+                    </p>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-sort me-2"></i>Sort
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?{% if query %}q={{ query }}&{% endif %}sort=newest">Newest First</a></li>
+                        <li><a class="dropdown-item" href="?{% if query %}q={{ query }}&{% endif %}sort=oldest">Oldest First</a></li>
+                        <li><a class="dropdown-item" href="?{% if query %}q={{ query }}&{% endif %}sort=rating">Highest Rated</a></li>
+                        <li><a class="dropdown-item" href="?{% if query %}q={{ query }}&{% endif %}sort=views">Most Viewed</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% if movies %}
+            <div class="row">
+                {% for movie in movies %}
+                <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+                        <div class="movie-card h-100">
+                            <div class="position-relative">
+                                <img src="{{ movie.poster_url or 'https://via.placeholder.com/300x450/172a45/8892b0?text=No+Poster' }}" 
+                                     alt="{{ movie.title }}" class="img-fluid">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge" style="background-color: var(--primary-blue); color: var(--primary-dark);">
+                                        <i class="fas fa-star me-1"></i>{{ "%.1f"|format(movie.average_rating) }}
+                                    </span>
+                                </div>
+                                <div class="position-absolute bottom-0 start-0 w-100 p-3" 
+                                     style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>{{ movie.release_year or 'N/A' }}</span>
+                                        <span>{{ movie.duration }} min</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="movie-info">
+                                <h6 class="movie-title">{{ movie.title }}</h6>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    {% if movie.genres %}
+                                        {% for genre in movie.genres[:2] %}
+                                        <span class="badge bg-secondary small">{{ genre.name }}</span>
+                                        {% endfor %}
+                                        {% if movie.genres|length > 2 %}
+                                        <span class="badge bg-secondary small">+{{ movie.genres|length - 2 }}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                <div class="movie-meta">
+                                    <span>
+                                        <i class="fas fa-eye me-1"></i>{{ movie.views_count }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-comment me-1"></i>{{ movie.reviews|length }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x mb-3" style="color: var(--text-secondary);"></i>
+                <h4 class="mb-3" style="color: var(--text-primary);">No movies found</h4>
+                <p class="text-secondary mb-4">
+                    {% if query %}
+                        No results found for "{{ query }}". Try a different search term.
+                    {% else %}
+                        No movies available yet. Check back soon!
+                    {% endif %}
+                </p>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <a href="/admin/movie/new" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add Movies
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Pagination (placeholder) -->
+            {% if movies and movies|length >= 12 %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

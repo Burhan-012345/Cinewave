@@ -1,0 +1,1544 @@
+{% extends "base.html" %} {% block title %}{{ movie.title }} - CineWave{%
+endblock %} {% block head %}
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  rel="stylesheet"
+/>
+<style>
+  .movie-header {
+    background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)),
+      {% if movie.poster_url and movie.poster_url.startswith('posters/') %}
+      url('{{ url_for("uploaded_file", filename=movie.poster_url) }}')
+      {% elif movie.poster_url %}
+      url('{{ movie.poster_url }}')
+      {% else %}
+      url('https://images.unsplash.com/photo-1489599809516-9827b6d1cf13?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')
+      {% endif %};
+    background-size: cover;
+    background-position: center;
+    padding: 4rem 0;
+    position: relative;
+  }
+
+  .movie-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to right,
+      rgba(10, 25, 47, 0.9) 0%,
+      rgba(10, 25, 47, 0.7) 50%,
+      transparent 100%
+    );
+  }
+
+  .movie-poster {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+  }
+
+  .movie-poster:hover {
+    transform: scale(1.02);
+  }
+
+  .movie-poster img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+  }
+
+  .download-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--success);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 2;
+  }
+
+  .progress-ring {
+    width: 80px;
+    height: 80px;
+  }
+
+  .progress-ring-circle {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+
+  .download-info-card {
+    background: var(--card-bg);
+    border-left: 4px solid var(--primary-blue);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .download-limit-warning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid var(--warning);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .action-btn {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 25px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .btn-watch {
+    background: var(--primary-blue);
+    color: white;
+    border: 2px solid var(--primary-blue);
+  }
+
+  .btn-watch:hover {
+    background: transparent;
+    color: var(--primary-blue);
+  }
+
+  .btn-download {
+    background: var(--success);
+    color: white;
+    border: 2px solid var(--success);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-download:hover {
+    background: transparent;
+    color: var(--success);
+  }
+
+  .btn-download:hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+
+  .btn-download.disabled,
+  .btn-download:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--secondary-dark);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+  }
+
+  .btn-watchlist {
+    background: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+  }
+
+  .btn-watchlist:hover {
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+  }
+
+  .trailer-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--secondary-dark);
+    margin-bottom: 2rem;
+  }
+
+  .trailer-container iframe,
+  .trailer-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .spec-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  .spec-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .spec-icon {
+    font-size: 2rem;
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+  }
+
+  .similar-movie-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .similar-movie-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+  }
+
+  .similar-movie-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .similar-movie-info {
+    padding: 1rem;
+  }
+
+  .rating-stars {
+    color: var(--warning);
+    font-size: 1.2rem;
+  }
+
+  .download-limits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .limit-card {
+    background: var(--secondary-dark);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .limit-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-blue);
+  }
+
+  .limit-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .star-rating {
+    direction: rtl;
+    display: inline-block;
+    padding: 20px;
+  }
+
+  .star-rating input[type="radio"] {
+    display: none;
+  }
+
+  .star-rating label {
+    color: #ddd;
+    font-size: 2rem;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .star-rating input[type="radio"]:checked ~ label,
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: #ffc107;
+  }
+
+  .progress-card {
+    border-left: 4px solid var(--primary-blue);
+  }
+
+  .progress-container {
+    position: relative;
+    height: 10px;
+    background: var(--secondary-dark);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--primary-blue) 0%, #4a9eff 100%);
+    position: relative;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .progress-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .progress-percentage {
+    font-weight: bold;
+    color: var(--primary-blue);
+    font-size: 1.1rem;
+  }
+
+  .progress-milestone {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 50%;
+    margin: 0 2px;
+  }
+
+  .progress-milestone.active {
+    background: var(--success);
+    transform: scale(1.2);
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--secondary-dark);
+    border-radius: var(--radius);
+    transition: all 0.3s ease;
+  }
+
+  .stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-blue);
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .download-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+  }
+
+  .download-progress {
+    flex: 1;
+    height: 5px;
+    background: var(--secondary-dark);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .download-progress-bar {
+    height: 100%;
+    background: var(--success);
+    transition: width 0.3s ease;
+  }
+
+  .download-icon {
+    position: relative;
+  }
+
+  .download-count-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--warning);
+    color: var(--primary-dark);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+
+  .file-info-badge {
+    background: var(--info);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-left: 5px;
+  }
+
+  @media (max-width: 768px) {
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .action-btn {
+      min-width: 100%;
+    }
+
+    .movie-poster img {
+      height: 350px;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Movie Header -->
+<div class="movie-header">
+  <div class="container position-relative">
+    <div class="row align-items-center">
+      <div class="col-lg-4 mb-4 mb-lg-0">
+        <div class="movie-poster">
+          <img
+            src="{% if movie.poster_url %}{{ movie.poster_url }}{% else %}https://via.placeholder.com/400x600/172a45/8892b0?text=No+Poster{% endif %}"
+            alt="{{ movie.title }}"
+            class="img-fluid rounded"
+            onerror="this.src='https://via.placeholder.com/400x600/172a45/8892b0?text=Poster+Error'"
+          />
+
+          {% if movie.download_enabled %}
+          <div class="download-badge">
+            <i class="fas fa-download me-1"></i> Download Available {% if
+            movie.file_size %}
+            <span class="file-info-badge">{{ movie.file_size_formatted }}</span>
+            {% endif %}
+          </div>
+          {% endif %} {% if continue_progress and continue_progress.duration and
+          continue_progress.duration > 0 and continue_progress.current_time and
+          continue_progress.current_time > 0 %} {% set progress_percent =
+          ((continue_progress.current_time / continue_progress.duration) *
+          100)|int %} {% set circumference = 2 * 3.14159 * 35 %} {% set
+          dashoffset = circumference - (progress_percent / 100 * circumference)
+          %}
+          <div
+            class="position-absolute bottom-0 start-0 w-100 p-3"
+            style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.8))"
+          >
+            <div class="text-center">
+              <div class="progress-ring position-relative d-inline-block">
+                <svg class="progress-ring" viewBox="0 0 80 80">
+                  <circle
+                    class="progress-ring-circle"
+                    stroke="var(--primary-blue)"
+                    stroke-width="6"
+                    stroke-linecap="round"
+                    fill="transparent"
+                    r="35"
+                    cx="40"
+                    cy="40"
+                    stroke-dasharray="{{ circumference }}"
+                    stroke-dashoffset="{{ dashoffset }}"
+                  ></circle>
+                </svg>
+                <div
+                  class="position-absolute top-50 start-50 translate-middle text-white fw-bold"
+                >
+                  {{ progress_percent }}%
+                </div>
+              </div>
+              <div class="text-white small mt-2">Continue Watching</div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="ps-lg-4">
+          <div class="d-flex align-items-center flex-wrap mb-3">
+            <h1 class="display-5 fw-bold me-3">{{ movie.title }}</h1>
+            {% if movie.imdb_rating %}
+            <div
+              class="d-flex align-items-center bg-dark bg-opacity-50 px-3 py-1 rounded-pill"
+            >
+              <i class="fab fa-imdb fa-lg text-warning me-2"></i>
+              <span class="fw-bold">{{ movie.imdb_rating }}/10</span>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mb-4">
+            <span class="badge bg-primary"
+              >{{ movie.release_year or 'N/A' }}</span
+            >
+            {% if movie.duration %}
+            <span class="badge bg-secondary">{{ movie.duration }} min</span>
+            {% endif %} {% if movie.content_rating %}
+            <span class="badge bg-info">{{ movie.content_rating }}</span>
+            {% endif %} {% if movie.is_featured %}
+            <span class="badge bg-warning">Featured</span>
+            {% endif %}
+            <span class="badge bg-success">
+              <i class="fas fa-eye me-1"></i>{{ movie.views_count }} views
+            </span>
+            {% if movie.download_count and movie.download_count > 0 %}
+            <span class="badge bg-info">
+              <i class="fas fa-download me-1"></i>{{ movie.download_count }}
+              downloads
+            </span>
+            {% endif %} {% if movie.file_format %}
+            <span class="badge bg-dark">
+              <i class="fas fa-file-video me-1"></i>{{ movie.file_format|upper
+              }}
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            {% if current_user.is_authenticated %}
+            <!-- Watch Button -->
+            <a
+              href="{{ url_for('stream_movie', movie_id=movie.id) }}"
+              class="action-btn btn-watch"
+            >
+              <i class="fas fa-play"></i>
+              {% if continue_progress and continue_progress.duration and
+              continue_progress.duration > 0 and continue_progress.current_time
+              and continue_progress.current_time > 0 %} {% set progress_percent
+              = ((continue_progress.current_time / continue_progress.duration) *
+              100)|int %} Continue Watching ({{ progress_percent }}%) {% else %}
+              Watch Now {% endif %}
+            </a>
+
+            <!-- Download Button -->
+            {% if movie.download_enabled %}
+            <a
+              href="{{ url_for('request_movie_download', movie_id=movie.id) }}"
+              class="action-btn btn-download"
+              {%
+              if
+              download_limits
+              and
+              not
+              download_limits.allowed
+              %}
+              onclick="showDownloadLimitModal(event); return false;"
+              {%
+              endif
+              %}
+              title="Download {{ movie.title }}{% if movie.file_size %} ({{ movie.file_size_formatted }}){% endif %}"
+            >
+              <span class="download-icon">
+                <i class="fas fa-download"></i>
+                {% if previous_download %}
+                <span class="download-count-badge"
+                  >{{ movie.download_count + 1 }}</span
+                >
+                {% endif %}
+              </span>
+              {% if previous_download %} Download Again {% else %} Download
+              Movie {% endif %}
+            </a>
+            {% else %}
+            <button
+              class="action-btn btn-secondary"
+              disabled
+              title="Download not available for this movie"
+            >
+              <i class="fas fa-download"></i> Download Not Available
+            </button>
+            {% endif %}
+
+            <!-- Watchlist Button -->
+            <form
+              method="POST"
+              action="{{ url_for('toggle_watchlist', movie_id=movie.id) }}"
+              class="d-inline"
+              style="flex: 1"
+            >
+              <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+              />
+              <button type="submit" class="action-btn btn-watchlist w-100">
+                {% if in_watchlist %}
+                <i class="fas fa-bookmark"></i> Remove from Watchlist {% else %}
+                <i class="far fa-bookmark"></i> Add to Watchlist {% endif %}
+              </button>
+            </form>
+
+            {% else %}
+            <!-- Non-authenticated user buttons -->
+            <a
+              href="{{ url_for('login', next=url_for('stream_movie', movie_id=movie.id)) }}"
+              class="action-btn btn-watch"
+            >
+              <i class="fas fa-sign-in-alt"></i> Login to Watch
+            </a>
+
+            {% if movie.download_enabled %}
+            <a
+              href="{{ url_for('request_movie_download', movie_id=movie.id) }}"
+              class="action-btn btn-download"
+              title="Download {{ movie.title }}{% if movie.file_size %} ({{ movie.file_size_formatted }}){% endif %}"
+            >
+              <i class="fas fa-download"></i> Download Movie
+            </a>
+            {% else %}
+            <button class="action-btn btn-secondary" disabled>
+              <i class="fas fa-download"></i> Download Not Available
+            </button>
+            {% endif %}
+
+            <a
+              href="{{ url_for('register') }}"
+              class="action-btn btn-watchlist"
+            >
+              <i class="fas fa-user-plus"></i> Register Free
+            </a>
+            {% endif %}
+          </div>
+
+          <!-- Download Limits Info -->
+          {% if current_user.is_authenticated and movie.download_enabled %}
+          <div class="download-limits">
+            <div class="limit-card">
+              <div class="limit-value">
+                {{ download_limits.today_downloads if download_limits else 0 }}
+              </div>
+              <div class="limit-label">Today's Downloads</div>
+            </div>
+            <div class="limit-card">
+              <div class="limit-value">
+                {{ download_limits.max_daily if download_limits else 10 }}
+              </div>
+              <div class="limit-label">Daily Limit</div>
+            </div>
+            <div class="limit-card">
+              <div class="limit-value">
+                {{ download_limits.weekly_downloads if download_limits else 0 }}
+              </div>
+              <div class="limit-label">This Week</div>
+            </div>
+            <div class="limit-card">
+              <div class="limit-value">
+                {{ download_limits.max_weekly if download_limits else 50 }}
+              </div>
+              <div class="limit-label">Weekly Limit</div>
+            </div>
+          </div>
+
+          {% if download_limits and not download_limits.allowed %}
+          <div class="download-limit-warning">
+            <div class="d-flex align-items-start">
+              <i
+                class="fas fa-exclamation-triangle me-3 text-warning fa-lg"
+              ></i>
+              <div>
+                <strong>Download Limit Reached</strong>
+                <p class="mb-0">
+                  {{ download_limits.message if download_limits else 'Daily
+                  limit reached' }}
+                </p>
+                <small class="text-secondary"
+                  >Limits reset daily at midnight UTC.</small
+                >
+              </div>
+            </div>
+          </div>
+          {% endif %} {% endif %}
+
+          <!-- Download Information -->
+          {% if movie.download_enabled %}
+          <div class="download-info-card">
+            <h5 class="mb-3">
+              <i class="fas fa-info-circle me-2"></i>Download Information
+            </h5>
+            <div class="row">
+              {% if movie.file_size %}
+              <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                  <div class="spec-icon"><i class="fas fa-hdd"></i></div>
+                  <div class="fw-bold">{{ movie.file_size_formatted }}</div>
+                  <div class="text-secondary small">File Size</div>
+                </div>
+              </div>
+              {% endif %} {% if movie.file_format %}
+              <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                  <div class="spec-icon"><i class="fas fa-file-video"></i></div>
+                  <div class="fw-bold">{{ movie.file_format|upper }}</div>
+                  <div class="text-secondary small">Format</div>
+                </div>
+              </div>
+              {% endif %}
+
+              <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                  <div class="spec-icon"><i class="fas fa-clock"></i></div>
+                  <div class="fw-bold">{{ DOWNLOAD_EXPIRY_DAYS }} days</div>
+                  <div class="text-secondary small">Availability</div>
+                </div>
+              </div>
+
+              <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                  <div class="spec-icon"><i class="fas fa-redo"></i></div>
+                  <div class="fw-bold">3 times</div>
+                  <div class="text-secondary small">Max Downloads</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Download Status -->
+            {% if previous_download %}
+            <div
+              class="mt-3 p-3"
+              style="
+                background: rgba(34, 197, 94, 0.1);
+                border-radius: var(--radius);
+              "
+            >
+              <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <div>
+                  <strong>Previously Downloaded</strong>
+                  <div class="text-secondary small">
+                    Last downloaded on {{
+                    previous_download.completed_at.strftime('%B %d, %Y') if
+                    previous_download.completed_at else 'Unknown date' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Movie Content -->
+<div class="container py-5">
+  <div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+      <!-- Description -->
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h4 class="card-title mb-3">Synopsis</h4>
+          <p class="text-secondary" style="line-height: 1.8">
+            {{ movie.description or 'No description available for this movie.'
+            }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Trailer -->
+      {% if movie.trailer_url %}
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h4 class="card-title mb-3">
+            <i
+              class="fas fa-play-circle me-2"
+              style="color: var(--primary-blue)"
+            ></i>
+            Trailer
+          </h4>
+          <div class="trailer-container">
+            {% if movie.trailer_url.startswith('/uploads/trailers/') or
+            movie.trailer_url.startswith('trailers/') %}
+            <video controls>
+              <source
+                src="{{ url_for('uploaded_file', filename=movie.trailer_url.replace('/uploads/', '')) }}"
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+            {% elif 'youtube.com' in movie.trailer_url or 'youtu.be' in
+            movie.trailer_url %} {% set video_id =
+            movie.trailer_url.split('v=')[1].split('&')[0] if 'v=' in
+            movie.trailer_url else movie.trailer_url.split('/')[-1] %}
+            <iframe
+              src="https://www.youtube.com/embed/{{ video_id }}?autoplay=0&controls=1"
+              allowfullscreen
+              class="youtube-trailer"
+            ></iframe>
+            {% else %}
+            <video controls>
+              <source src="{{ movie.trailer_url }}" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Enhanced Movie Progress Stats -->
+      <div class="card mb-4 progress-card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">
+            <i
+              class="fas fa-chart-line me-2"
+              style="color: var(--primary-blue)"
+            ></i>
+            Performance Analytics
+          </h4>
+
+          <!-- Views Progress -->
+          {% set view_percent = (movie.views_count | float / 1000 * 100) %} {%
+          if view_percent > 100 %} {% set view_percent = 100 %} {% endif %}
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="mb-0">
+                  <i class="fas fa-eye me-2 text-primary"></i> View Progress
+                </h6>
+                <small class="text-secondary"
+                  >Based on 1000 views benchmark</small
+                >
+              </div>
+              <span class="badge bg-primary"
+                >{{ movie.views_count }} views</span
+              >
+            </div>
+            <div class="progress-container">
+              <div
+                class="progress-fill"
+                style="width: {{ view_percent }}%"
+              ></div>
+            </div>
+            <div class="progress-label">
+              <span class="text-secondary">Progress</span>
+              <span class="progress-percentage">{{ view_percent|int }}%</span>
+            </div>
+            <div class="text-center mt-2">
+              {% for i in range(10) %}
+              <span
+                class="progress-milestone {% if (i+1)*10 <= view_percent %}active{% endif %}"
+              ></span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Additional Stats Grid -->
+          <div class="stats-grid">
+            <!-- Rating Progress -->
+            {% if movie.imdb_rating %} {% set rating_percent =
+            (movie.imdb_rating | float / 10 * 100) %}
+            <div class="stat-item">
+              <div class="stat-value">{{ movie.imdb_rating }}/10</div>
+              <div class="stat-label">IMDb Rating</div>
+              <div class="progress-container mt-2" style="height: 6px">
+                <div
+                  class="progress-fill"
+                  style="width: {{ rating_percent }}%; background: var(--warning);"
+                ></div>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Downloads Progress -->
+            {% if movie.download_count %} {% set download_percent =
+            (movie.download_count | float / 100 * 100) %} {% if download_percent
+            > 100 %} {% set download_percent = 100 %} {% endif %}
+            <div class="stat-item">
+              <div class="stat-value">{{ movie.download_count }}</div>
+              <div class="stat-label">Downloads</div>
+              <div class="progress-container mt-2" style="height: 6px">
+                <div
+                  class="progress-fill"
+                  style="width: {{ download_percent }}%; background: var(--success);"
+                ></div>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Watchlist Progress -->
+            {% set watchlist_percent = (watchlist_count | float / 50 * 100) %}
+            {% if watchlist_percent > 100 %} {% set watchlist_percent = 100 %}
+            {% endif %}
+            <div class="stat-item">
+              <div class="stat-value">{{ watchlist_count }}</div>
+              <div class="stat-label">Watchlist Adds</div>
+              <div class="progress-container mt-2" style="height: 6px">
+                <div
+                  class="progress-fill"
+                  style="width: {{ watchlist_percent }}%; background: var(--info);"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Average Rating Progress -->
+            {% if average_rating %} {% set avg_rating_percent = (average_rating
+            | float / 5 * 100) %}
+            <div class="stat-item">
+              <div class="stat-value">
+                {{ "%.1f"|format(average_rating|float) }}/5
+              </div>
+              <div class="stat-label">User Rating</div>
+              <div class="progress-container mt-2" style="height: 6px">
+                <div
+                  class="progress-fill"
+                  style="width: {{ avg_rating_percent }}%; background: linear-gradient(90deg, #ffd700, #ff8c00);"
+                ></div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Specifications -->
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h4 class="card-title mb-3">Movie Details</h4>
+          <div class="specs-grid">
+            {% if movie.release_year %}
+            <div class="spec-card">
+              <div class="spec-icon"><i class="fas fa-calendar-alt"></i></div>
+              <div class="fw-bold">{{ movie.release_year }}</div>
+              <div class="text-secondary small">Release Year</div>
+            </div>
+            {% endif %} {% if movie.duration %}
+            <div class="spec-card">
+              <div class="spec-icon"><i class="fas fa-clock"></i></div>
+              <div class="fw-bold">{{ movie.duration }} min</div>
+              <div class="text-secondary small">Duration</div>
+            </div>
+            {% endif %} {% if movie.content_rating %}
+            <div class="spec-card">
+              <div class="spec-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <div class="fw-bold">{{ movie.content_rating }}</div>
+              <div class="text-secondary small">Content Rating</div>
+            </div>
+            {% endif %} {% if movie.imdb_rating %}
+            <div class="spec-card">
+              <div class="spec-icon"><i class="fab fa-imdb"></i></div>
+              <div class="fw-bold">{{ movie.imdb_rating }}/10</div>
+              <div class="text-secondary small">IMDb Rating</div>
+            </div>
+            {% endif %} {% if movie.views_count %}
+            <div class="spec-card">
+              <div class="spec-icon"><i class="fas fa-eye"></i></div>
+              <div class="fw-bold">{{ movie.views_count }}</div>
+              <div class="text-secondary small">Total Views</div>
+            </div>
+            {% endif %} {% if movie.download_count %}
+            <div class="spec-card">
+              <div class="spec-icon"><i class="fas fa-download"></i></div>
+              <div class="fw-bold">{{ movie.download_count }}</div>
+              <div class="text-secondary small">Downloads</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Genres -->
+      {% if movie.genres %}
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h4 class="card-title mb-3">Genres</h4>
+          <div class="d-flex flex-wrap gap-2">
+            {% for genre in movie.genres %}
+            <a
+              href="{{ url_for('movies_index') }}?genre={{ genre.id }}"
+              class="badge bg-primary text-decoration-none p-2"
+            >
+              {{ genre.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Reviews Section -->
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h4 class="card-title mb-4">
+            <i
+              class="fas fa-comments me-2"
+              style="color: var(--primary-blue)"
+            ></i>
+            Reviews
+            <span class="badge bg-secondary ms-2">{{ reviews|length }}</span>
+          </h4>
+
+          {% if current_user.is_authenticated %}
+          <!-- Add Review Form -->
+          <div
+            class="card mb-4"
+            style="
+              background: var(--secondary-dark);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <h5 class="card-title mb-3">Add Your Review</h5>
+              <form
+                method="POST"
+                action="{{ url_for('add_review', movie_id=movie.id) }}"
+              >
+                <input
+                  type="hidden"
+                  name="csrf_token"
+                  value="{{ csrf_token() }}"
+                />
+                <div class="mb-3">
+                  <label class="form-label">Rating</label>
+                  <div class="star-rating">
+                    {% for i in range(5, 0, -1) %}
+                    <input
+                      type="radio"
+                      id="star{{ i }}"
+                      name="rating"
+                      value="{{ i }}"
+                      {%
+                      if
+                      loop.first
+                      %}checked{%
+                      endif
+                      %}
+                    />
+                    <label for="star{{ i }}"><i class="fas fa-star"></i></label>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="comment" class="form-label">Comment</label>
+                  <textarea
+                    class="form-control"
+                    id="comment"
+                    name="comment"
+                    rows="3"
+                    placeholder="Share your thoughts about this movie..."
+                  ></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-paper-plane me-2"></i>Submit Review
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Reviews List -->
+          {% if reviews %} {% for review in reviews %}
+          <div
+            class="card mb-3"
+            style="
+              background: var(--secondary-dark);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-start mb-2"
+              >
+                <div>
+                  <h6 class="mb-0">
+                    {{ review.user.name if review.user else 'Anonymous' }}
+                  </h6>
+                  <small class="text-secondary"
+                    >{{ review.created_at.strftime('%B %d, %Y') if
+                    review.created_at else '' }}</small
+                  >
+                </div>
+                <div class="rating-stars">
+                  {% for i in range(5) %}
+                  <i
+                    class="fas fa-star {% if i < review.rating %}text-warning{% else %}text-secondary{% endif %}"
+                  ></i>
+                  {% endfor %}
+                </div>
+              </div>
+              {% if review.comment %}
+              <p class="mb-0 mt-2">{{ review.comment }}</p>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <div class="text-center py-4">
+            <i
+              class="fas fa-comment-slash fa-3x mb-3"
+              style="color: var(--text-secondary)"
+            ></i>
+            <p class="text-secondary">
+              No reviews yet. Be the first to review this movie!
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Similar Movies -->
+      {% if similar_movies %}
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h5 class="card-title mb-3">
+            <i class="fas fa-film me-2" style="color: var(--primary-blue)"></i>
+            Similar Movies
+          </h5>
+          <div class="row">
+            {% for similar in similar_movies %}
+            <div class="col-6 mb-3">
+              <a
+                href="{{ url_for('movie_detail', movie_id=similar.id) }}"
+                class="text-decoration-none"
+              >
+                <div class="similar-movie-card">
+                  <img
+                    src="{% if similar.poster_url %}{% if similar.poster_url.startswith('/uploads/posters/') %}{{ url_for('uploaded_file', filename=similar.poster_url.replace('/uploads/', '')) }}{% elif similar.poster_url.startswith('posters/') %}{{ url_for('uploaded_file', filename=similar.poster_url) }}{% elif similar.poster_url.startswith('http') %}{{ similar.poster_url }}{% else %}{{ url_for('uploaded_file', filename=similar.poster_url) }}{% endif %}{% else %}https://via.placeholder.com/300x200/172a45/8892b0?text=No+Poster{% endif %}"
+                    alt="{{ similar.title }}"
+                    onerror="this.src='https://via.placeholder.com/300x200/172a45/8892b0?text=Poster+Error'"
+                  />
+                  <div class="similar-movie-info">
+                    <h6 class="movie-title mb-1">{{ similar.title }}</h6>
+                    <div class="d-flex justify-content-between">
+                      <small class="text-secondary"
+                        >{{ similar.release_year or 'N/A' }}</small
+                      >
+                      {% if similar.imdb_rating %}
+                      <small class="text-warning"
+                        ><i class="fas fa-star"></i> {{ similar.imdb_rating
+                        }}</small
+                      >
+                      {% endif %}
+                    </div>
+                    <!-- Download button for similar movies -->
+                    {% if similar.download_enabled %}
+                    <div class="mt-2">
+                      <a
+                        href="{{ url_for('request_movie_download', movie_id=similar.id) }}"
+                        class="btn btn-sm btn-success w-100"
+                        title="Download {{ similar.title }}{% if similar.file_size %} ({{ similar.file_size_formatted }}){% endif %}"
+                      >
+                        <i class="fas fa-download me-1"></i>Download
+                      </a>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Enhanced Movie Stats -->
+      <div class="card mb-4 progress-card">
+        <div class="card-body">
+          <h5 class="card-title mb-4">
+            <i
+              class="fas fa-chart-bar me-2"
+              style="color: var(--primary-blue)"
+            ></i>
+            Quick Stats
+          </h5>
+
+          <!-- Views Summary -->
+          {% set view_summary_percent = (movie.views_count | float / 1000 * 100)
+          %} {% if view_summary_percent > 100 %} {% set view_summary_percent =
+          100 %} {% endif %}
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold">Views Progress</span>
+              <span class="badge bg-primary"
+                >{{ view_summary_percent|int }}%</span
+              >
+            </div>
+            <div class="progress-container">
+              <div
+                class="progress-fill"
+                style="width: {{ view_summary_percent }}%"
+              ></div>
+            </div>
+            <div class="text-center mt-1">
+              <small class="text-secondary"
+                >{{ movie.views_count }} of 1000 milestone</small
+              >
+            </div>
+          </div>
+
+          <!-- Rating Summary -->
+          {% if movie.imdb_rating %} {% set rating_summary_percent =
+          (movie.imdb_rating | float / 10 * 100) %}
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold">IMDb Rating</span>
+              <span class="badge bg-warning">{{ movie.imdb_rating }}/10</span>
+            </div>
+            <div class="progress-container">
+              <div
+                class="progress-fill"
+                style="width: {{ rating_summary_percent }}%; background: var(--warning);"
+              ></div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Engagement Rate -->
+          {% if movie.views_count and watchlist_count %} {% set engagement_rate
+          = (watchlist_count | float / movie.views_count * 100) %} {% if
+          engagement_rate > 100 %} {% set engagement_rate = 100 %} {% endif %}
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold">Engagement Rate</span>
+              <span class="badge bg-info">{{ engagement_rate|int }}%</span>
+            </div>
+            <div class="progress-container">
+              <div
+                class="progress-fill"
+                style="width: {{ engagement_rate }}%; background: var(--info);"
+              ></div>
+            </div>
+            <div class="text-center mt-1">
+              <small class="text-secondary"
+                >{{ watchlist_count }} watchlist adds</small
+              >
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Download Rate -->
+          {% if movie.views_count and movie.download_count %} {% set
+          download_rate = (movie.download_count | float / movie.views_count *
+          100) %} {% if download_rate > 100 %} {% set download_rate = 100 %} {%
+          endif %}
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold">Download Rate</span>
+              <span class="badge bg-success">{{ download_rate|int }}%</span>
+            </div>
+            <div class="progress-container">
+              <div
+                class="progress-fill"
+                style="width: {{ download_rate }}%; background: var(--success);"
+              ></div>
+            </div>
+            <div class="text-center mt-1">
+              <small class="text-secondary"
+                >{{ movie.download_count }} downloads</small
+              >
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h5 class="card-title mb-3">Quick Actions</h5>
+          <div class="d-grid gap-2">
+            {% if current_user.is_authenticated %}
+            <a
+              href="{{ url_for('stream_movie', movie_id=movie.id) }}"
+              class="btn btn-primary"
+            >
+              <i class="fas fa-play me-2"></i>Watch Now
+            </a>
+
+            {% if movie.download_enabled %}
+            <a
+              href="{{ url_for('request_movie_download', movie_id=movie.id) }}"
+              class="btn btn-success"
+              {%
+              if
+              download_limits
+              and
+              not
+              download_limits.allowed
+              %}
+              onclick="showDownloadLimitModal(event); return false;"
+              {%
+              endif
+              %}
+              title="Download {{ movie.title }}{% if movie.file_size %} ({{ movie.file_size_formatted }}){% endif %}"
+            >
+              <i class="fas fa-download me-2"></i>
+              {% if previous_download %}Download Again{% else %}Download Now{%
+              endif %}
+            </a>
+            {% else %}
+            <button class="btn btn-secondary" disabled>
+              <i class="fas fa-download me-2"></i>Download Unavailable
+            </button>
+            {% endif %}
+
+            <form
+              method="POST"
+              action="{{ url_for('toggle_watchlist', movie_id=movie.id) }}"
+            >
+              <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+              />
+              <button type="submit" class="btn btn-outline-primary w-100">
+                {% if in_watchlist %}
+                <i class="fas fa-bookmark me-2"></i>Remove from Watchlist {%
+                else %} <i class="far fa-bookmark me-2"></i>Add to Watchlist {%
+                endif %}
+              </button>
+            </form>
+
+            <a
+              href="{{ url_for('search') }}?q={{ movie.title|urlencode }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-search me-2"></i>Find Similar
+            </a>
+
+            {% else %}
+            <a
+              href="{{ url_for('login', next=url_for('movie_detail', movie_id=movie.id)) }}"
+              class="btn btn-primary"
+            >
+              <i class="fas fa-sign-in-alt me-2"></i>Login to Watch
+            </a>
+
+            {% if movie.download_enabled %}
+            <a
+              href="{{ url_for('request_movie_download', movie_id=movie.id) }}"
+              class="btn btn-success"
+              title="Download {{ movie.title }}{% if movie.file_size %} ({{ movie.file_size_formatted }}){% endif %}"
+            >
+              <i class="fas fa-download me-2"></i>Download Movie
+            </a>
+            {% else %}
+            <button class="btn btn-secondary" disabled>
+              <i class="fas fa-download me-2"></i>Download Unavailable
+            </button>
+            {% endif %}
+
+            <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+              <i class="fas fa-user-plus me-2"></i>Register Free
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Download Limit Modal -->
+<div class="modal fade" id="downloadLimitModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div
+      class="modal-content"
+      style="background: var(--card-bg); border-color: var(--border-color)"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title text-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>Download Limit Reached
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong
+            >{{ download_limits.message if download_limits else 'Daily download
+            limit reached.' }}</strong
+          >
+        </div>
+        <p class="text-secondary">
+          You have reached your maximum allowed downloads for today. Limits
+          reset daily at midnight UTC.
+        </p>
+        <div class="row text-center">
+          <div class="col-6">
+            <div class="fw-bold fs-4" style="color: var(--primary-blue)">
+              {{ download_limits.today_downloads if download_limits else 0 }}
+            </div>
+            <div class="text-secondary small">Today's Downloads</div>
+          </div>
+          <div class="col-6">
+            <div class="fw-bold fs-4" style="color: var(--primary-blue)">
+              {{ download_limits.max_daily if download_limits else 10 }}
+            </div>
+            <div class="text-secondary small">Daily Limit</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <a href="{{ url_for('user_downloads') }}" class="btn btn-primary"
+          ><i class="fas fa-history me-2"></i>View Downloads</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showDownloadLimitModal(e) {
+    e.preventDefault();
+    const modal = new bootstrap.Modal(
+      document.getElementById("downloadLimitModal")
+    );
+    modal.show();
+  }
+
+  // Animate progress bars on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    // Animate progress fill elements
+    document.querySelectorAll(".progress-fill").forEach(function (element) {
+      const width = element.style.width;
+      element.style.width = "0%";
+      setTimeout(() => {
+        element.style.transition = "width 1s cubic-bezier(0.4, 0, 0.2, 1)";
+        element.style.width = width;
+      }, 100);
+    });
+
+    // Update progress ring animation
+    const progressRing = document.querySelector(".progress-ring-circle");
+    if (progressRing) {
+      progressRing.style.transition = "stroke-dashoffset 0.5s ease";
+    }
+
+    // Handle image errors
+    document.querySelectorAll("img").forEach((img) => {
+      img.addEventListener("error", function () {
+        if (!this.src.includes("placeholder")) {
+          this.src =
+            "https://via.placeholder.com/300x450/172a45/8892b0?text=Poster+Error";
+        }
+      });
+    });
+
+    // Add download button hover effects
+    document.querySelectorAll(".btn-download").forEach((btn) => {
+      btn.addEventListener("mouseenter", function () {
+        if (!this.classList.contains("disabled")) {
+          this.style.transform = "scale(1.05)";
+        }
+      });
+      btn.addEventListener("mouseleave", function () {
+        this.style.transform = "";
+      });
+    });
+  });
+</script>
+{% endblock %}
