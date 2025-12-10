@@ -1,0 +1,368 @@
+{% extends "base.html" %} {% block title %}My Downloads - CineWave{% endblock %}
+{% block content %}
+<div class="container mt-5 pt-5">
+  <!-- Header -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h2" style="color: var(--text-primary)">
+          <i class="fas fa-download me-2" style="color: var(--primary-blue)"></i
+          >My Downloads
+        </h1>
+        <div class="d-flex gap-2">
+          <button
+            class="btn btn-outline-primary btn-sm"
+            onclick="clearDownloads()"
+          >
+            <i class="fas fa-trash-alt me-1"></i>Clear History
+          </button>
+          <button
+            class="btn btn-outline-primary btn-sm"
+            onclick="refreshDownloads()"
+          >
+            <i class="fas fa-redo me-1"></i>Refresh
+          </button>
+        </div>
+      </div>
+      <p class="text-secondary">
+        View and manage your downloaded movies. Downloads are available for 30
+        days.
+      </p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="row mb-4">
+    <div class="col-md-3 col-6 mb-3">
+      <div
+        class="card text-center"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <div
+            class="display-6 fw-bold mb-2"
+            style="color: var(--primary-blue)"
+          >
+            {{ downloads|length }}
+          </div>
+          <div class="text-secondary small">Total Downloads</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div
+        class="card text-center"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <div
+            class="display-6 fw-bold mb-2"
+            style="color: var(--primary-blue)"
+          >
+            {% set total_size = downloads|sum(attribute='movie.file_size') or 0
+            %} {{ (total_size / (1024**3))|round(1) }} GB
+          </div>
+          <div class="text-secondary small">Total Size</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div
+        class="card text-center"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <div
+            class="display-6 fw-bold mb-2"
+            style="color: var(--primary-blue)"
+          >
+            {% set completed = downloads|selectattr('status', 'equalto',
+            'completed')|list|length %} {{ completed }}
+          </div>
+          <div class="text-secondary small">Completed</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div
+        class="card text-center"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <div
+            class="display-6 fw-bold mb-2"
+            style="color: var(--primary-blue)"
+          >
+            {{ (30 -
+            (downloads|max(attribute='created_at')|default(now)|time_delta).days
+            if downloads else 0) }}
+          </div>
+          <div class="text-secondary small">Days Remaining</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Downloads List -->
+  <div class="row">
+    <div class="col-12">
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h5 class="card-title mb-4">Download History</h5>
+
+          {% if downloads %}
+          <div class="table-responsive">
+            <table class="table" style="color: var(--text-primary)">
+              <thead>
+                <tr>
+                  <th>Movie</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Size</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for download in downloads %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img
+                        src="{{ download.movie.poster_url or 'https://via.placeholder.com/60x90/172a45/8892b0?text=No+Poster' }}"
+                        alt="{{ download.movie.title }}"
+                        class="rounded me-3"
+                        style="width: 60px; height: 90px; object-fit: cover"
+                      />
+                      <div>
+                        <h6 class="mb-0">{{ download.movie.title }}</h6>
+                        <small class="text-secondary"
+                          >{{ download.movie.release_year }}</small
+                        >
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="text-secondary small">
+                      {{ download.created_at.strftime('%b %d, %Y') }}<br />
+                      {{ download.created_at.strftime('%I:%M %p') }}
+                    </div>
+                  </td>
+                  <td>
+                    {% if download.status == 'completed' %}
+                    <span class="badge bg-success">
+                      <i class="fas fa-check me-1"></i>Completed
+                    </span>
+                    {% elif download.status == 'downloading' %}
+                    <span class="badge bg-info">
+                      <i class="fas fa-spinner fa-spin me-1"></i>Downloading
+                    </span>
+                    {% elif download.status == 'failed' %}
+                    <span class="badge bg-danger">
+                      <i class="fas fa-times me-1"></i>Failed
+                    </span>
+                    {% else %}
+                    <span class="badge bg-warning">
+                      <i class="fas fa-clock me-1"></i>Pending
+                    </span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="text-secondary small">
+                      {{ download.movie.file_size_formatted }}<br />
+                      {% if download.completed_at %}
+                      <small>{{ download.download_speed }} MB/s</small>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      {% if download.status == 'completed' and
+                      download.download_token %}
+                      <a
+                        href="{{ url_for('download_movie_file', token=download.download_token) }}"
+                        class="btn btn-sm btn-outline-primary"
+                        title="Download Again"
+                      >
+                        <i class="fas fa-redownload"></i>
+                      </a>
+                      {% endif %}
+                      <a
+                        href="{{ url_for('movie_detail', movie_id=download.movie.id) }}"
+                        class="btn btn-sm btn-outline-secondary"
+                        title="View Movie"
+                      >
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <button
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="deleteDownload({{ download.id }})"
+                        title="Delete Record"
+                      >
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
+              <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+              </li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          {% else %}
+          <div class="text-center py-5">
+            <i
+              class="fas fa-download fa-3x mb-3"
+              style="color: var(--text-secondary)"
+            ></i>
+            <h4 class="mb-3" style="color: var(--text-primary)">
+              No Downloads Yet
+            </h4>
+            <p class="text-secondary mb-4">
+              You haven't downloaded any movies yet. Start exploring our
+              collection!
+            </p>
+            <a href="{{ url_for('movies_index') }}" class="btn btn-primary">
+              <i class="fas fa-film me-2"></i>Browse Movies
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Download Tips -->
+  <div class="row mt-4">
+    <div class="col-md-6 mb-3">
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h6 class="card-title mb-3">
+            <i
+              class="fas fa-lightbulb me-2"
+              style="color: var(--primary-blue)"
+            ></i>
+            Download Tips
+          </h6>
+          <ul class="text-secondary small">
+            <li class="mb-2">Downloads are available for 30 days</li>
+            <li class="mb-2">You can download each movie up to 3 times</li>
+            <li class="mb-2">
+              Use a stable internet connection for large files
+            </li>
+            <li class="mb-2">Keep your app updated for best performance</li>
+            <li>Contact support if downloads fail repeatedly</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h6 class="card-title mb-3">
+            <i
+              class="fas fa-question-circle me-2"
+              style="color: var(--primary-blue)"
+            ></i>
+            Need Help?
+          </h6>
+          <p class="text-secondary small mb-3">
+            Having trouble with downloads? Check our help center or contact
+            support.
+          </p>
+          <div class="d-flex gap-2">
+            <a
+              href="{{ url_for('help_center') }}"
+              class="btn btn-sm btn-outline-primary"
+            >
+              <i class="fas fa-question-circle me-1"></i>Help Center
+            </a>
+            <a
+              href="{{ url_for('contact') }}"
+              class="btn btn-sm btn-outline-primary"
+            >
+              <i class="fas fa-headset me-1"></i>Contact Support
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function clearDownloads() {
+    if (
+      confirm(
+        "Are you sure you want to clear your download history? This cannot be undone."
+      )
+    ) {
+      fetch("/downloads/clear", {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')
+            .content,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            location.reload();
+          }
+        })
+        .catch(console.error);
+    }
+  }
+
+  function refreshDownloads() {
+    location.reload();
+  }
+
+  function deleteDownload(downloadId) {
+    if (confirm("Delete this download record?")) {
+      fetch(`/downloads/${downloadId}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')
+            .content,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            location.reload();
+          }
+        })
+        .catch(console.error);
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,297 @@
+{% extends "base.html" %} {% block title %}Profiles - CineWave{% endblock %} {%
+block content %}
+<div class="container mt-5 pt-5">
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2" style="color: var(--text-primary)">
+          <i class="fas fa-users me-2" style="color: var(--primary-blue)"></i>
+          Manage Profiles
+        </h1>
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#createProfileModal"
+        >
+          <i class="fas fa-plus me-2"></i>Create Profile
+        </button>
+      </div>
+      <p class="text-secondary">
+        Switch between profiles for personalized recommendations and watch
+        history.
+      </p>
+    </div>
+  </div>
+
+  <!-- Profiles Grid -->
+  <div class="row mb-5">
+    {% for profile in profiles %}
+    <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+      <div class="profile-card {% if profile.is_active %}active{% endif %}">
+        <div class="profile-avatar">
+          {% if profile.avatar and profile.avatar != 'default.png' %}
+          <img
+            src="{{ url_for('static', filename='avatars/' + profile.avatar) }}"
+            alt="{{ profile.name }}"
+            class="rounded-circle"
+            style="width: 100%; height: 100%; object-fit: cover"
+          />
+          {% else %}
+          <i class="fas fa-user"></i>
+          {% endif %}
+        </div>
+
+        <h4 class="mb-2">{{ profile.name }}</h4>
+
+        <div class="mb-3">
+          {% if profile.is_child %}
+          <span class="badge bg-info">Kids</span>
+          {% endif %} {% if profile.is_default %}
+          <span class="badge bg-secondary">Default</span>
+          {% endif %} {% if profile.is_active %}
+          <span class="badge bg-success">Active</span>
+          {% endif %}
+        </div>
+
+        <p class="text-secondary small mb-3">
+          Created {{ profile.created_at.strftime('%b %d, %Y') if
+          profile.created_at else 'Unknown' }}
+        </p>
+
+        <div class="d-flex gap-2 justify-content-center">
+          {% if not profile.is_active %}
+          <a
+            href="{{ url_for('switch_profile', profile_id=profile.id) }}"
+            class="btn btn-sm btn-outline-primary"
+          >
+            <i class="fas fa-play me-1"></i>Switch To
+          </a>
+          {% endif %} {% if not profile.is_default %}
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteProfileModal{{ profile.id }}"
+          >
+            <i class="fas fa-trash me-1"></i>Delete
+          </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Delete Modal -->
+      <div
+        class="modal fade"
+        id="deleteProfileModal{{ profile.id }}"
+        tabindex="-1"
+      >
+        <div class="modal-dialog">
+          <div
+            class="modal-content"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="modal-header">
+              <h5 class="modal-title">Delete Profile</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p>
+                Are you sure you want to delete "<strong
+                  >{{ profile.name }}</strong
+                >"?
+              </p>
+              <p class="text-danger small">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                This action cannot be undone. All watch history for this profile
+                will be lost.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <a
+                href="{{ url_for('delete_profile', profile_id=profile.id) }}"
+                class="btn btn-danger"
+                >Delete Profile</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Profile Stats -->
+  <div class="row">
+    <div class="col-12">
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <h5 class="card-title mb-4">Profile Statistics</h5>
+          <div class="row">
+            {% for profile in profiles %}
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div
+                class="text-center p-3"
+                style="
+                  background: var(--secondary-dark);
+                  border-radius: var(--radius);
+                "
+              >
+                <h6 class="mb-2" style="color: var(--primary-blue)">
+                  {{ profile.name }}
+                </h6>
+
+                <div class="d-flex justify-content-between small mb-1">
+                  <span>Continue Watching:</span>
+                  <span> {{ profile.continue_watching_count }} </span>
+                </div>
+
+                <div class="progress mb-3" style="height: 5px">
+                  {% set continue_count = profile.continue_watching_count %} {%
+                  if continue_count %} {% set progress_value = (continue_count /
+                  10) * 100 %} {% set progress_percentage = progress_value if
+                  progress_value < 100 else 100 %} {% else %} {% set
+                  progress_percentage = 0 %} {% endif %}
+                  <div
+                    class="progress-bar"
+                    role="progressbar"
+                    style="width: {{ progress_percentage }}%"
+                  ></div>
+                </div>
+
+                <div>
+                  <small class="text-secondary">
+                    {% if profile.is_active %}
+                    <i class="fas fa-circle text-success me-1"></i>Active {%
+                    else %}
+                    <i class="fas fa-circle text-secondary me-1"></i>Inactive {%
+                    endif %}
+                  </small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Profile Modal -->
+<div class="modal fade" id="createProfileModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div
+      class="modal-content"
+      style="background: var(--card-bg); border-color: var(--border-color)"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Profile</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+
+      <form method="POST" action="{{ url_for('create_profile') }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="profileName" class="form-label">Profile Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="profileName"
+              name="name"
+              placeholder="Enter profile name"
+              required
+              maxlength="50"
+            />
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="isChild"
+                name="is_child"
+              />
+              <label class="form-check-label" for="isChild">
+                <i class="fas fa-child me-1"></i>Kids Profile
+              </label>
+              <div class="form-text">
+                Kids profiles have content restrictions.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Create Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    transition: 0.3s ease;
+    height: 100%;
+  }
+
+  .profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-blue);
+  }
+
+  .profile-card.active {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.3);
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    background: var(--secondary-dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--text-secondary);
+  }
+</style>
+
+{% endblock %}

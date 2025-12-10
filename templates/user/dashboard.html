@@ -1,0 +1,447 @@
+{% extends "base.html" %} {% block title %}Dashboard - CineWave{% endblock %} {%
+block content %}
+<div class="container mt-5 pt-5">
+  <!-- Welcome Section -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div
+        class="card"
+        style="
+          background: linear-gradient(
+            135deg,
+            var(--primary-dark) 0%,
+            var(--tertiary-dark) 100%
+          );
+          border: none;
+        "
+      >
+        <div class="card-body p-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h1
+                class="display-6 fw-bold mb-2"
+                style="color: var(--primary-blue)"
+              >
+                Welcome back, {{ current_user.name }}!
+              </h1>
+              <p class="lead mb-0" style="color: var(--text-secondary)">
+                {% if profile %} Currently watching on
+                <strong>{{ profile.name }}</strong> profile {% else %}
+                <a href="{{ url_for('profiles') }}" class="text-primary"
+                  >Select a profile</a
+                >
+                to start watching {% endif %}
+              </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+              <a
+                href="{{ url_for('profiles') }}"
+                class="btn btn-outline-primary"
+              >
+                <i class="fas fa-users me-2"></i>Switch Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Continue Watching -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3" style="color: var(--text-primary)">
+          <i
+            class="fas fa-play-circle me-2"
+            style="color: var(--primary-blue)"
+          ></i>
+          Continue Watching
+        </h2>
+        {% if continue_watching %}
+        <a
+          href="{{ url_for('continue_watching') }}"
+          class="btn btn-outline-primary btn-sm"
+        >
+          View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+        {% endif %}
+      </div>
+
+      {% if continue_watching %}
+      <div class="row">
+        {% for item in continue_watching %}
+        <div class="col-md-3 col-lg-2 mb-4">
+          <a
+            href="{{ url_for('movie_detail', movie_id=item.movie.id) }}"
+            class="text-decoration-none"
+          >
+            <div class="position-relative">
+              <div class="movie-card">
+                <img
+                  src="{% if item.movie.poster_url and item.movie.poster_url.startswith('posters/') %}{{ url_for('uploaded_file', filename=item.movie.poster_url) }}{% elif item.movie.poster_url %}{{ item.movie.poster_url }}{% else %}https://via.placeholder.com/300x450/172a45/8892b0?text=No+Poster{% endif %}"
+                  alt="{{ item.movie.title }}"
+                  class="img-fluid"
+                  onerror="this.src='https://via.placeholder.com/300x450/172a45/8892b0?text=Poster+Error'"
+                />
+                <div class="position-absolute bottom-0 start-0 w-100">
+                  <div class="progress" style="height: 4px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: {{ (item.current_time / item.duration * 100) if item.duration and item.duration > 0 else 0 }}%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2">
+                <h6 class="movie-title">{{ item.movie.title }}</h6>
+                <small class="text-secondary">
+                  {{ (item.current_time // 60)|int }} min watched
+                </small>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i
+          class="fas fa-play-circle fa-3x mb-3"
+          style="color: var(--text-secondary)"
+        ></i>
+        <h4 class="mb-2" style="color: var(--text-primary)">
+          Nothing to continue watching
+        </h4>
+        <p class="text-secondary mb-4">
+          Start watching movies to see them here.
+        </p>
+        <a href="{{ url_for('movies_index') }}" class="btn btn-primary">
+          <i class="fas fa-film me-2"></i>Browse Movies
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Watchlist -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3" style="color: var(--text-primary)">
+          <i
+            class="fas fa-bookmark me-2"
+            style="color: var(--primary-blue)"
+          ></i>
+          Your Watchlist
+        </h2>
+        {% if watchlist %}
+        <a
+          href="{{ url_for('search') }}?watchlist=true"
+          class="btn btn-outline-primary btn-sm"
+        >
+          View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+        {% endif %}
+      </div>
+
+      {% if watchlist %}
+      <div class="row">
+        {% for item in watchlist[:6] %}
+        <div class="col-md-3 col-lg-2 mb-4">
+          <a
+            href="{{ url_for('movie_detail', movie_id=item.movie.id) }}"
+            class="text-decoration-none"
+          >
+            <div class="movie-card">
+              <img
+                src="{% if item.movie.poster_url and item.movie.poster_url.startswith('posters/') %}{{ url_for('uploaded_file', filename=item.movie.poster_url) }}{% elif item.movie.poster_url %}{{ item.movie.poster_url }}{% else %}https://via.placeholder.com/300x450/172a45/8892b0?text=No+Poster{% endif %}"
+                alt="{{ item.movie.title }}"
+                class="img-fluid"
+                onerror="this.src='https://via.placeholder.com/300x450/172a45/8892b0?text=Poster+Error'"
+              />
+            </div>
+            <div class="mt-2">
+              <h6 class="movie-title">{{ item.movie.title }}</h6>
+              <small class="text-secondary">
+                Added {{ item.created_at.strftime('%b %d') if item.created_at
+                else 'Recently' }}
+              </small>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <i
+          class="far fa-bookmark fa-3x mb-3"
+          style="color: var(--text-secondary)"
+        ></i>
+        <h4 class="mb-2" style="color: var(--text-primary)">
+          Your watchlist is empty
+        </h4>
+        <p class="text-secondary mb-4">
+          Add movies to your watchlist to watch them later.
+        </p>
+        <a href="{{ url_for('movies_index') }}" class="btn btn-primary">
+          <i class="fas fa-plus me-2"></i>Add Movies
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="row">
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stat-card">
+        <div class="stat-value">{{ continue_watching|length }}</div>
+        <div class="stat-label">Continue Watching</div>
+        <i
+          class="fas fa-play-circle mt-3"
+          style="color: var(--primary-blue); font-size: 1.5rem"
+        ></i>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stat-card">
+        <div class="stat-value">{{ watchlist|length }}</div>
+        <div class="stat-label">Watchlist Items</div>
+        <i
+          class="fas fa-bookmark mt-3"
+          style="color: var(--primary-blue); font-size: 1.5rem"
+        ></i>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stat-card">
+        {% set total_reviews = current_user.reviews|length if
+        current_user.reviews else 0 %}
+        <div class="stat-value">{{ total_reviews }}</div>
+        <div class="stat-label">Reviews Written</div>
+        <i
+          class="fas fa-comment mt-3"
+          style="color: var(--primary-blue); font-size: 1.5rem"
+        ></i>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="stat-card">
+        <div class="stat-value">
+          {% set total_watch_time = 0 %} {% for item in continue_watching %} {%
+          set total_watch_time = total_watch_time + item.current_time %} {%
+          endfor %} {{ (total_watch_time // 3600)|int }}h
+        </div>
+        <div class="stat-label">Total Watch Time</div>
+        <i
+          class="fas fa-clock mt-3"
+          style="color: var(--primary-blue); font-size: 1.5rem"
+        ></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Downloads -->
+  {% if recent_downloads %}
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3" style="color: var(--text-primary)">
+          <i
+            class="fas fa-download me-2"
+            style="color: var(--primary-blue)"
+          ></i>
+          Recent Downloads
+        </h2>
+        <a
+          href="{{ url_for('user_downloads') }}"
+          class="btn btn-outline-primary btn-sm"
+        >
+          View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+
+      <div class="row">
+        {% for download in recent_downloads %}
+        <div class="col-md-4 col-lg-3 mb-4">
+          <div
+            class="card h-100"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <h6 class="card-title mb-2">
+                {{ download.movie.title if download.movie else 'Movie' }}
+              </h6>
+              <p class="text-secondary small mb-2">
+                Downloaded {{ download.completed_at.strftime('%b %d') if
+                download.completed_at else 'Recently' }}
+              </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-success">Completed</span>
+                {% if download.movie %}
+                <a
+                  href="{{ url_for('movie_detail', movie_id=download.movie.id) }}"
+                  class="btn btn-sm btn-outline-primary"
+                >
+                  View
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Recommendations -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3" style="color: var(--text-primary)">
+          <i class="fas fa-star me-2" style="color: var(--primary-blue)"></i>
+          Recommended For You
+        </h2>
+        <a
+          href="{{ url_for('recommendations') }}"
+          class="btn btn-outline-primary btn-sm"
+        >
+          See More <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+
+      {% if recommendations %}
+      <div class="row">
+        {% for movie in recommendations %}
+        <div class="col-md-3 col-lg-2 mb-4">
+          <a
+            href="{{ url_for('movie_detail', movie_id=movie.id) }}"
+            class="text-decoration-none"
+          >
+            <div class="movie-card">
+              <img
+                src="{% if movie.poster_url and movie.poster_url.startswith('posters/') %}{{ url_for('uploaded_file', filename=movie.poster_url) }}{% elif movie.poster_url %}{{ movie.poster_url }}{% else %}https://via.placeholder.com/300x450/172a45/8892b0?text=No+Poster{% endif %}"
+                alt="{{ movie.title }}"
+                class="img-fluid"
+                onerror="this.src='https://via.placeholder.com/300x450/172a45/8892b0?text=Poster+Error'"
+              />
+            </div>
+            <div class="mt-2">
+              <h6 class="movie-title">{{ movie.title }}</h6>
+              {% if movie.imdb_rating %}
+              <small class="text-warning">
+                <i class="fas fa-star"></i> {{ movie.imdb_rating }}
+              </small>
+              {% endif %}
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i
+          class="fas fa-robot fa-3x mb-3"
+          style="color: var(--text-secondary)"
+        ></i>
+        <h4 class="mb-2" style="color: var(--text-primary)">
+          Personalized Recommendations
+        </h4>
+        <p class="text-secondary mb-4">
+          Start watching movies to get personalized recommendations based on
+          your taste.
+        </p>
+        <a href="{{ url_for('movies_index') }}" class="btn btn-primary">
+          <i class="fas fa-film me-2"></i>Explore Movies
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .movie-card {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+  }
+
+  .movie-card:hover {
+    transform: scale(1.05);
+  }
+
+  .movie-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .movie-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    height: 100%;
+    transition: transform 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-blue);
+    line-height: 1;
+  }
+
+  .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+</style>
+
+<script>
+  // Add error handling for broken images
+  document.addEventListener("DOMContentLoaded", function () {
+    const images = document.querySelectorAll("img");
+    images.forEach((img) => {
+      img.addEventListener("error", function () {
+        if (!this.src.includes("placeholder")) {
+          this.src =
+            "https://via.placeholder.com/300x450/172a45/8892b0?text=Poster+Error";
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
