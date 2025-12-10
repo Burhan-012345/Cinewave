@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Movie - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('admin_movies') }}" style="color: var(--primary-blue)">
+                            <i class="fas fa-film me-1"></i>Movies
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ action }} Movie</li>
+                </ol>
+            </nav>
+            
+            <h1 class="h2 mb-4" style="color: var(--text-primary)">
+                <i class="fas fa-{{ 'plus' if action == 'Add' else 'edit' }} me-2" 
+                   style="color: var(--primary-blue)"></i>
+                {{ action }} Movie
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4" style="background: var(--card-bg); border-color: var(--border-color)">
+                <div class="card-body">
+                    <form method="POST" id="movieForm">
+                        <!-- Basic Information -->
+                        <div class="mb-4">
+                            <h5 class="mb-3" style="color: var(--primary-blue)">
+                                <i class="fas fa-info-circle me-2"></i>Basic Information
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="title" class="form-label">Title *</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="title" 
+                                           name="title"
+                                           value="{{ movie.title if movie else '' }}"
+                                           required>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="release_year" class="form-label">Release Year *</label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="release_year" 
+                                           name="release_year"
+                                           min="1900" 
+                                           max="{{ now.year + 5 }}"
+                                           value="{{ movie.release_year if movie else '' }}"
+                                           required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" 
+                                          id="description" 
+                                          name="description" 
+                                          rows="4">{{ movie.description if movie else '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Media & Ratings -->
+                        <div class="mb-4">
+                            <h5 class="mb-3" style="color: var(--primary-blue)">
+                                <i class="fas fa-star me-2"></i>Media & Ratings
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="poster_url" class="form-label">Poster Image URL</label>
+                                    <input type="url" 
+                                           class="form-control" 
+                                           id="poster_url" 
+                                           name="poster_url"
+                                           value="{{ movie.poster_url if movie else '' }}"
+                                           placeholder="https://example.com/poster.jpg">
+                                    <div class="form-text">
+                                        Enter URL for movie poster image
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="trailer_url" class="form-label">Trailer URL</label>
+                                    <input type="url" 
+                                           class="form-control" 
+                                           id="trailer_url" 
+                                           name="trailer_url"
+                                           value="{{ movie.trailer_url if movie else '' }}"
+                                           placeholder="https://youtube.com/watch?v=...">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="duration" class="form-label">Duration (minutes)</label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="duration" 
+                                           name="duration"
+                                           min="1" 
+                                           max="500"
+                                           value="{{ movie.duration if movie else '' }}">
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="imdb_rating" class="form-label">IMDb Rating (0-10)</label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="imdb_rating" 
+                                           name="imdb_rating"
+                                           min="0" 
+                                           max="10" 
+                                           step="0.1"
+                                           value="{{ movie.imdb_rating if movie else '' }}">
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="content_rating" class="form-label">Content Rating</label>
+                                    <select class="form-control" id="content_rating" name="content_rating">
+                                        <option value="">Select rating</option>
+                                        <option value="G" {% if movie and movie.content_rating == 'G' %}selected{% endif %}>G - General Audiences</option>
+                                        <option value="PG" {% if movie and movie.content_rating == 'PG' %}selected{% endif %}>PG - Parental Guidance</option>
+                                        <option value="PG-13" {% if movie and movie.content_rating == 'PG-13' %}selected{% endif %}>PG-13 - Parents Strongly Cautioned</option>
+                                        <option value="R" {% if movie and movie.content_rating == 'R' %}selected{% endif %}>R - Restricted</option>
+                                        <option value="NC-17" {% if movie and movie.content_rating == 'NC-17' %}selected{% endif %}>NC-17 - Adults Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Genres -->
+                        <div class="mb-4">
+                            <h5 class="mb-3" style="color: var(--primary-blue)">
+                                <i class="fas fa-tags me-2"></i>Genres
+                            </h5>
+                            
+                            <div class="row">
+                                {% for genre in genres %}
+                                <div class="col-md-4 col-lg-3 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="genre_{{ genre.id }}" 
+                                               name="genres" 
+                                               value="{{ genre.id }}"
+                                               {% if selected_genre_ids and genre.id in selected_genre_ids %}checked{% endif %}>
+                                        <label class="form-check-label" for="genre_{{ genre.id }}">
+                                            {{ genre.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Settings -->
+                        <div class="mb-4">
+                            <h5 class="mb-3" style="color: var(--primary-blue)">
+                                <i class="fas fa-cog me-2"></i>Settings
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="is_featured" 
+                                               name="is_featured"
+                                               {% if movie and movie.is_featured %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_featured">
+                                            <strong>Featured Movie</strong>
+                                            <div class="form-text">
+                                                Show this movie in featured section
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="download_enabled" 
+                                               name="download_enabled"
+                                               {% if movie and movie.download_enabled %}checked{% endif %}>
+                                        <label class="form-check-label" for="download_enabled">
+                                            <strong>Enable Downloads</strong>
+                                            <div class="form-text">
+                                                Allow users to download this movie
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_movies') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            
+                            <div class="d-flex gap-2">
+                                {% if movie %}
+                                <a href="{{ url_for('admin_upload_movie_file', movie_id=movie.id) }}" 
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-upload me-2"></i>Upload File
+                                </a>
+                                {% endif %}
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>{{ action }} Movie
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Sidebar -->
+        <div class="col-lg-4">
+            <div class="card mb-4" style="background: var(--card-bg); border-color: var(--border-color)">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-eye me-2"></i>Preview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div id="posterPreview" 
+                             class="rounded mb-3" 
+                             style="width: 100%; height: 300px; background: var(--secondary-dark); 
+                                    background-size: cover; background-position: center;">
+                            {% if movie and movie.poster_url %}
+                            <img src="{{ movie.poster_url }}" 
+                                 alt="Poster Preview" 
+                                 style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            {% else %}
+                            <div class="h-100 d-flex flex-column align-items-center justify-content-center">
+                                <i class="fas fa-film fa-3x mb-3" style="color: var(--text-secondary)"></i>
+                                <p class="text-secondary mb-0">No poster image</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 id="titlePreview" class="mb-2">
+                            {{ movie.title if movie else 'Movie Title' }}
+                        </h5>
+                        <p class="text-secondary mb-3" id="yearPreview">
+                            {{ movie.release_year if movie else 'Year' }}
+                            {% if movie and movie.duration %}
+                            • {{ movie.duration }} min
+                            {% endif %}
+                        </p>
+                        
+                        <div class="mb-3">
+                            {% if movie and movie.genres %}
+                            <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                {% for genre in movie.genres %}
+                                <span class="badge bg-secondary">{{ genre.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-secondary small">No genres selected</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-secondary small" id="descriptionPreview">
+                                {{ movie.description[:200] + '...' if movie and movie.description else 'No description' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if movie %}
+            <!-- Movie Info -->
+            <div class="card" style="background: var(--card-bg); border-color: var(--border-color)">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Movie Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-secondary d-block">Movie ID</small>
+                        <code>{{ movie.id }}</code>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-secondary d-block">Created</small>
+                        {{ movie.created_at.strftime('%Y-%m-%d %H:%M') if movie.created_at else 'N/A' }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-secondary d-block">Last Updated</small>
+                        {{ movie.updated_at.strftime('%Y-%m-%d %H:%M') if movie.updated_at else 'N/A' }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-secondary d-block">File Status</small>
+                        {% if movie.file_path %}
+                        <span class="badge bg-success">File Uploaded</span>
+                        <div class="mt-2">
+                            <a href="{{ url_for('admin_upload_movie_file', movie_id=movie.id) }}" 
+                               class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fas fa-sync-alt me-2"></i>Replace File
+                            </a>
+                        </div>
+                        {% else %}
+                        <span class="badge bg-danger">No File</span>
+                        <div class="mt-2">
+                            <a href="{{ url_for('admin_upload_movie_file', movie_id=movie.id) }}" 
+                               class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-upload me-2"></i>Upload File
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if movie.file_path %}
+                    <div class="alert alert-info small mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Users can download this movie when enabled
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        background: var(--secondary-dark);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: var(--secondary-dark);
+        border-color: var(--primary-blue);
+        color: var(--text-primary);
+        box-shadow: 0 0 0 0.25rem rgba(66, 153, 225, 0.25);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
+    }
+    
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: var(--text-secondary);
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--text-primary);
+    }
+    
+    .form-text {
+        color: var(--text-secondary) !important;
+    }
+</style>
+
+<script>
+    // Update preview in real-time
+    document.addEventListener('DOMContentLoaded', function() {
+        const titleInput = document.getElementById('title');
+        const yearInput = document.getElementById('release_year');
+        const descriptionInput = document.getElementById('description');
+        const posterInput = document.getElementById('poster_url');
+        const durationInput = document.getElementById('duration');
+        
+        function updatePreview() {
+            // Update title
+            const titlePreview = document.getElementById('titlePreview');
+            if (titleInput.value) {
+                titlePreview.textContent = titleInput.value;
+            } else {
+                titlePreview.textContent = 'Movie Title';
+            }
+            
+            // Update year and duration
+            const yearPreview = document.getElementById('yearPreview');
+            let yearText = yearInput.value || 'Year';
+            if (durationInput.value) {
+                yearText += ` • ${durationInput.value} min`;
+            }
+            yearPreview.textContent = yearText;
+            
+            // Update description
+            const descPreview = document.getElementById('descriptionPreview');
+            if (descriptionInput.value) {
+                const shortDesc = descriptionInput.value.length > 200 
+                    ? descriptionInput.value.substring(0, 200) + '...' 
+                    : descriptionInput.value;
+                descPreview.textContent = shortDesc;
+            } else {
+                descPreview.textContent = 'No description';
+            }
+            
+            // Update poster preview
+            const posterPreview = document.getElementById('posterPreview');
+            if (posterInput.value) {
+                posterPreview.innerHTML = `<img src="${posterInput.value}" 
+                    alt="Poster Preview" 
+                    style="width: 100%; height: 100%; object-fit: cover; display: block;"
+                    onerror="this.style.display='none'; document.querySelector('#posterPreview .fa-film').parentElement.style.display='flex';">
+                <div class="h-100 d-flex flex-column align-items-center justify-content-center" style="display: none;">
+                    <i class="fas fa-film fa-3x mb-3" style="color: var(--text-secondary)"></i>
+                    <p class="text-secondary mb-0">Invalid image URL</p>
+                </div>`;
+            } else {
+                posterPreview.innerHTML = `
+                    <div class="h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="fas fa-film fa-3x mb-3" style="color: var(--text-secondary)"></i>
+                        <p class="text-secondary mb-0">No poster image</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Add event listeners
+        [titleInput, yearInput, descriptionInput, posterInput, durationInput].forEach(input => {
+            if (input) {
+                input.addEventListener('input', updatePreview);
+            }
+        });
+        
+        // Initial update
+        updatePreview();
+    });
+</script>
+{% endblock %}

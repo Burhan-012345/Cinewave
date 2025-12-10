@@ -1,0 +1,1064 @@
+{% extends "base.html" %} {% block title %}Add Movie - Admin{% endblock %} {%
+block head %}
+<style>
+  .upload-card {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background: var(--secondary-dark);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-card:hover {
+    border-color: var(--primary-blue);
+    background: rgba(var(--primary-blue-rgb), 0.05);
+  }
+
+  .upload-card.dragover {
+    border-color: var(--primary-blue);
+    background: rgba(var(--primary-blue-rgb), 0.1);
+  }
+
+  .file-preview {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    background: var(--secondary-dark);
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .preview-video {
+    max-width: 100%;
+    border-radius: 4px;
+  }
+
+  .file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+  }
+
+  .file-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    word-break: break-word;
+  }
+
+  .file-size {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .remove-btn:hover {
+    background: rgba(220, 53, 69, 0.9);
+  }
+
+  .tab-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 1.5rem;
+  }
+
+  .nav-tabs .nav-link {
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    margin-right: 5px;
+  }
+
+  .nav-tabs .nav-link.active {
+    color: var(--primary-blue);
+    background: var(--card-bg);
+    border-color: var(--border-color) var(--border-color) var(--card-bg);
+  }
+
+  .nav-tabs .nav-link:hover {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+
+  .progress-bar {
+    background-color: var(--primary-blue);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container mt-5 pt-5">
+  <div class="row justify-content-center">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="col-lg-10">
+      <!-- Header -->
+      <div class="mb-4">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a
+                href="{{ url_for('admin_movies') }}"
+                style="color: var(--primary-blue)"
+              >
+                <i class="fas fa-film me-1"></i>Movies
+              </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+              Add Movie
+            </li>
+          </ol>
+        </nav>
+
+        <h1 class="h2 mb-3" style="color: var(--text-primary)">
+          <i class="fas fa-plus me-2" style="color: var(--primary-blue)"></i>
+          Add New Movie
+        </h1>
+        <p class="text-secondary">
+          Add a new movie with file uploads for poster, trailer, and movie file.
+        </p>
+      </div>
+
+      <!-- Add Movie Form -->
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data" id="addMovieForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <!-- Upload Section with Tabs -->
+            <div class="mb-5">
+              <h5 class="mb-3" style="color: var(--primary-blue)">
+                <i class="fas fa-upload me-2"></i>Upload Files
+              </h5>
+
+              <ul class="nav nav-tabs" id="uploadTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link active"
+                    id="movie-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#movie-tab-pane"
+                    type="button"
+                  >
+                    <i class="fas fa-film me-2"></i>Movie File
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="poster-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#poster-tab-pane"
+                    type="button"
+                  >
+                    <i class="fas fa-image me-2"></i>Poster Image
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="trailer-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#trailer-tab-pane"
+                    type="button"
+                  >
+                    <i class="fas fa-play-circle me-2"></i>Trailer Video
+                  </button>
+                </li>
+              </ul>
+
+              <div class="tab-content" id="uploadTabsContent">
+                <!-- Movie File Tab -->
+                <div
+                  class="tab-pane fade show active"
+                  id="movie-tab-pane"
+                  role="tabpanel"
+                >
+                  <div class="row">
+                    <div class="col-md-8">
+                      <div class="upload-card" id="movieUploadArea">
+                        <i
+                          class="fas fa-film fa-3x mb-3"
+                          style="color: var(--text-secondary)"
+                        ></i>
+                        <h5>Drag & Drop Movie File</h5>
+                        <p class="text-secondary mb-3">
+                          Main movie file. Max size: 4GB<br />
+                          Supported: MP4, MKV, AVI, MOV, WMV, FLV, WEBM
+                        </p>
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary"
+                          id="browseMovie"
+                        >
+                          <i class="fas fa-folder-open me-2"></i>Browse Files
+                        </button>
+                        <input
+                          type="file"
+                          class="d-none"
+                          id="movie_file"
+                          name="movie_file"
+                          accept=".mp4,.mkv,.avi,.mov,.wmv,.flv,.webm"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div id="moviePreview" class="d-none">
+                        <div class="file-preview">
+                          <div class="text-center">
+                            <i
+                              class="fas fa-film fa-3x mb-3"
+                              style="color: var(--primary-blue)"
+                            ></i>
+                          </div>
+                          <div class="file-info">
+                            <div>
+                              <div class="file-name" id="movieFileName"></div>
+                              <div class="file-size" id="movieFileSize"></div>
+                            </div>
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-danger"
+                              onclick="clearFile('movie')"
+                            >
+                              <i class="fas fa-times"></i>
+                            </button>
+                          </div>
+                          <div class="progress mt-2" style="height: 6px">
+                            <div
+                              class="progress-bar"
+                              id="movieUploadProgress"
+                              style="width: 0%"
+                            ></div>
+                          </div>
+                        </div>
+
+                        <div class="alert alert-info small">
+                          <i class="fas fa-info-circle me-2"></i>
+                          Required for movie downloads.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Poster Image Tab -->
+                <div class="tab-pane fade" id="poster-tab-pane" role="tabpanel">
+                  <div class="row">
+                    <div class="col-md-8">
+                      <div class="upload-card" id="posterUploadArea">
+                        <i
+                          class="fas fa-image fa-3x mb-3"
+                          style="color: var(--text-secondary)"
+                        ></i>
+                        <h5>Drag & Drop Poster Image</h5>
+                        <p class="text-secondary mb-3">
+                          Movie poster image. Max size: 10MB<br />
+                          Supported: PNG, JPG, JPEG, GIF, WEBP
+                        </p>
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary"
+                          id="browsePoster"
+                        >
+                          <i class="fas fa-folder-open me-2"></i>Browse Images
+                        </button>
+                        <input
+                          type="file"
+                          class="d-none"
+                          id="poster_file"
+                          name="poster_file"
+                          accept="image/*"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div id="posterPreview" class="d-none">
+                        <div class="file-preview">
+                          <img
+                            id="posterImagePreview"
+                            class="preview-image"
+                            src=""
+                            alt="Poster Preview"
+                          />
+                          <button
+                            type="button"
+                            class="remove-btn"
+                            onclick="clearFile('poster')"
+                          >
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <div class="file-info mt-2">
+                            <div>
+                              <div class="file-name" id="posterFileName"></div>
+                              <div class="file-size" id="posterFileSize"></div>
+                            </div>
+                          </div>
+                          <div class="progress mt-2" style="height: 6px">
+                            <div
+                              class="progress-bar"
+                              id="posterUploadProgress"
+                              style="width: 0%"
+                            ></div>
+                          </div>
+                        </div>
+
+                        <div class="alert alert-info small">
+                          <i class="fas fa-info-circle me-2"></i>
+                          Optional. You can also provide a URL below.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Fallback URL input -->
+                  <div class="mt-4">
+                    <label for="poster_url" class="form-label">
+                      <i class="fas fa-link me-2"></i>Or Enter Poster URL
+                    </label>
+                    <input
+                      type="url"
+                      class="form-control"
+                      id="poster_url"
+                      name="poster_url"
+                      placeholder="https://example.com/poster.jpg"
+                    />
+                    <div class="form-text">
+                      Provide a direct image URL if you prefer not to upload
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Trailer Video Tab -->
+                <div
+                  class="tab-pane fade"
+                  id="trailer-tab-pane"
+                  role="tabpanel"
+                >
+                  <div class="row">
+                    <div class="col-md-8">
+                      <div class="upload-card" id="trailerUploadArea">
+                        <i
+                          class="fas fa-video fa-3x mb-3"
+                          style="color: var(--text-secondary)"
+                        ></i>
+                        <h5>Drag & Drop Trailer Video</h5>
+                        <p class="text-secondary mb-3">
+                          Movie trailer. Max size: 500MB<br />
+                          Supported: MP4, MKV, AVI, MOV, WMV, FLV, WEBM
+                        </p>
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary"
+                          id="browseTrailer"
+                        >
+                          <i class="fas fa-folder-open me-2"></i>Browse Videos
+                        </button>
+                        <input
+                          type="file"
+                          class="d-none"
+                          id="trailer_file"
+                          name="trailer_file"
+                          accept="video/*"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div id="trailerPreview" class="d-none">
+                        <div class="file-preview">
+                          <video
+                            id="trailerVideoPreview"
+                            class="preview-video"
+                            controls
+                          >
+                            <source src="" type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                          <button
+                            type="button"
+                            class="remove-btn"
+                            onclick="clearFile('trailer')"
+                          >
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <div class="file-info mt-2">
+                            <div>
+                              <div class="file-name" id="trailerFileName"></div>
+                              <div class="file-size" id="trailerFileSize"></div>
+                            </div>
+                          </div>
+                          <div class="progress mt-2" style="height: 6px">
+                            <div
+                              class="progress-bar"
+                              id="trailerUploadProgress"
+                              style="width: 0%"
+                            ></div>
+                          </div>
+                        </div>
+
+                        <div class="alert alert-info small">
+                          <i class="fas fa-info-circle me-2"></i>
+                          Optional. You can also provide a URL below.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Fallback URL input -->
+                  <div class="mt-4">
+                    <label for="trailer_url" class="form-label">
+                      <i class="fas fa-link me-2"></i>Or Enter Trailer URL
+                    </label>
+                    <input
+                      type="url"
+                      class="form-control"
+                      id="trailer_url"
+                      name="trailer_url"
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                    <div class="form-text">
+                      Provide a video URL (YouTube, Vimeo, etc.) if you prefer
+                      not to upload
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Movie Information -->
+            <div class="mb-4">
+              <h5 class="mb-3" style="color: var(--primary-blue)">
+                <i class="fas fa-info-circle me-2"></i>Movie Information
+              </h5>
+
+              <div class="row">
+                <div class="col-md-8 mb-3">
+                  <label for="title" class="form-label">Title *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="title"
+                    name="title"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="release_year" class="form-label"
+                    >Release Year *</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="release_year"
+                    name="release_year"
+                    min="1900"
+                    max="{{ now.year + 5 }}"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea
+                  class="form-control"
+                  id="description"
+                  name="description"
+                  rows="3"
+                  placeholder="Brief description of the movie..."
+                ></textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="duration" class="form-label"
+                    >Duration (minutes)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="duration"
+                    name="duration"
+                    min="1"
+                    max="500"
+                  />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="imdb_rating" class="form-label"
+                    >IMDb Rating (0-10)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="imdb_rating"
+                    name="imdb_rating"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                  />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="content_rating" class="form-label"
+                    >Content Rating</label
+                  >
+                  <select
+                    class="form-select"
+                    id="content_rating"
+                    name="content_rating"
+                  >
+                    <option value="">Select rating</option>
+                    <option value="G">G - General Audiences</option>
+                    <option value="PG">PG - Parental Guidance</option>
+                    <option value="PG-13">
+                      PG-13 - Parents Strongly Cautioned
+                    </option>
+                    <option value="R">R - Restricted</option>
+                    <option value="NC-17">NC-17 - Adults Only</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Genres -->
+            <div class="mb-4">
+              <h5 class="mb-3" style="color: var(--primary-blue)">
+                <i class="fas fa-tags me-2"></i>Genres
+              </h5>
+
+              <div class="row">
+                {% for genre in genres %}
+                <div class="col-md-4 col-lg-3 mb-2">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="genre_{{ genre.id }}"
+                      name="genres"
+                      value="{{ genre.id }}"
+                    />
+                    <label class="form-check-label" for="genre_{{ genre.id }}">
+                      {{ genre.name }}
+                    </label>
+                  </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                  <p class="text-secondary">
+                    No genres found. Create genres first in the admin panel.
+                  </p>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="mb-5">
+              <h5 class="mb-3" style="color: var(--primary-blue)">
+                <i class="fas fa-cog me-2"></i>Settings
+              </h5>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="is_featured"
+                      name="is_featured"
+                    />
+                    <label class="form-check-label" for="is_featured">
+                      <strong>Featured Movie</strong>
+                      <div class="form-text">
+                        Show this movie in featured section
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="download_enabled"
+                      name="download_enabled"
+                      checked
+                    />
+                    <label class="form-check-label" for="download_enabled">
+                      <strong>Enable Downloads</strong>
+                      <div class="form-text">
+                        Allow users to download this movie (requires movie file)
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between">
+              <a
+                href="{{ url_for('admin_movies') }}"
+                class="btn btn-outline-secondary"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Cancel
+              </a>
+
+              <button type="submit" class="btn btn-primary" id="submitButton">
+                <i class="fas fa-save me-2"></i>Add Movie
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Upload Guidelines -->
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i>Upload Guidelines
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <h6><i class="fas fa-film me-2"></i>Movie File</h6>
+              <ul class="small">
+                <li><strong>Required</strong> for downloads</li>
+                <li>Max size: 4GB</li>
+                <li>MP4 recommended</li>
+                <li>1080p or 720p resolution</li>
+              </ul>
+            </div>
+            <div class="col-md-4 mb-3">
+              <h6><i class="fas fa-image me-2"></i>Poster Image</h6>
+              <ul class="small">
+                <li><strong>Optional</strong></li>
+                <li>Max size: 10MB</li>
+                <li>Aspect ratio: 2:3</li>
+                <li>Minimum: 500x750px</li>
+              </ul>
+            </div>
+            <div class="col-md-4 mb-3">
+              <h6><i class="fas fa-video me-2"></i>Trailer Video</h6>
+              <ul class="small">
+                <li><strong>Optional</strong></li>
+                <li>Max size: 500MB</li>
+                <li>MP4 recommended</li>
+                <li>Keep under 3 minutes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  // Configuration - More lenient for testing
+  const CONFIG = {
+    movie: {
+      maxSize: 4 * 1024 * 1024 * 1024, // 4GB
+      allowed: [
+        "mp4",
+        "mkv",
+        "avi",
+        "mov",
+        "wmv",
+        "flv",
+        "webm",
+        "m4v",
+        "mpg",
+        "mpeg",
+      ],
+      previewId: "moviePreview",
+      fileNameId: "movieFileName",
+      fileSizeId: "movieFileSize",
+      progressId: "movieUploadProgress",
+      uploadAreaId: "movieUploadArea",
+      inputId: "movie_file",
+      type: "movie",
+      accept: ".mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.m4v,.mpg,.mpeg, video/*",
+    },
+    poster: {
+      maxSize: 20 * 1024 * 1024, // 20MB (increased)
+      allowed: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"],
+      previewId: "posterPreview",
+      imagePreviewId: "posterImagePreview",
+      fileNameId: "posterFileName",
+      fileSizeId: "posterFileSize",
+      progressId: "posterUploadProgress",
+      uploadAreaId: "posterUploadArea",
+      inputId: "poster_file",
+      type: "poster",
+      accept: "image/*",
+    },
+    trailer: {
+      maxSize: 1 * 1024 * 1024 * 1024, // 1GB (increased)
+      allowed: [
+        "mp4",
+        "mkv",
+        "avi",
+        "mov",
+        "wmv",
+        "flv",
+        "webm",
+        "m4v",
+        "mpg",
+        "mpeg",
+      ],
+      previewId: "trailerPreview",
+      videoPreviewId: "trailerVideoPreview",
+      fileNameId: "trailerFileName",
+      fileSizeId: "trailerFileSize",
+      progressId: "trailerUploadProgress",
+      uploadAreaId: "trailerUploadArea",
+      inputId: "trailer_file",
+      type: "trailer",
+      accept: ".mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.m4v,.mpg,.mpeg, video/*",
+    },
+  };
+
+  const files = {};
+
+  // Initialize all upload areas
+  Object.keys(CONFIG).forEach((type) => {
+    initUploadArea(CONFIG[type]);
+  });
+
+  function initUploadArea(config) {
+    const uploadArea = document.getElementById(config.uploadAreaId);
+    const browseBtn = document.getElementById(
+      `browse${config.type.charAt(0).toUpperCase() + config.type.slice(1)}`
+    );
+    const fileInput = document.getElementById(config.inputId);
+
+    // Set accept attribute
+    if (fileInput) {
+      fileInput.setAttribute("accept", config.accept);
+    }
+
+    // Browse button click
+    if (browseBtn) {
+      browseBtn.addEventListener("click", () => {
+        console.log(`Browse button clicked for ${config.type}`);
+        fileInput.click();
+      });
+    }
+
+    // File input change
+    if (fileInput) {
+      fileInput.addEventListener("change", (e) => {
+        console.log(`File input changed for ${config.type}:`, e.target.files);
+        handleFileSelect(e, config);
+      });
+    }
+
+    // Drag and drop
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+      uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+      uploadArea.addEventListener(eventName, () => {
+        console.log(`Drag over ${config.type}`);
+        uploadArea.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      uploadArea.addEventListener(eventName, () => {
+        uploadArea.classList.remove("dragover");
+      });
+    });
+
+    uploadArea.addEventListener("drop", (e) => {
+      console.log(`File dropped on ${config.type}:`, e.dataTransfer.files);
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+
+        // Trigger change event
+        const event = new Event("change", { bubbles: true });
+        fileInput.dispatchEvent(event);
+      }
+    });
+  }
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function handleFileSelect(e, config) {
+    const file = e.target.files[0];
+    if (!file) {
+      console.log(`No file selected for ${config.type}`);
+      return;
+    }
+
+    console.log(`Processing ${config.type} file:`, {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      lastModified: file.lastModified,
+    });
+
+    // Validate file size
+    if (file.size > config.maxSize) {
+      alert(
+        `File too large. Maximum size is ${formatFileSize(config.maxSize)}.`
+      );
+      clearFile(config.type);
+      return;
+    }
+
+    // Validate file extension
+    const fileExt = file.name.split(".").pop().toLowerCase();
+    console.log(`File extension: ${fileExt}, Allowed: ${config.allowed}`);
+
+    if (!config.allowed.includes(fileExt)) {
+      alert(
+        `Invalid file type. File: .${fileExt}. Allowed formats: ${config.allowed.join(
+          ", "
+        )}`
+      );
+      clearFile(config.type);
+      return;
+    }
+
+    // Store file
+    files[config.type] = file;
+
+    // Show preview
+    showPreview(file, config);
+  }
+
+  function showPreview(file, config) {
+    console.log(`Showing preview for ${config.type}:`, file.name);
+
+    const preview = document.getElementById(config.previewId);
+    const fileName = document.getElementById(config.fileNameId);
+    const fileSize = document.getElementById(config.fileSizeId);
+
+    // Update file info
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+
+    // Show preview
+    preview.classList.remove("d-none");
+
+    // Create preview based on file type
+    if (config.type === "poster" && config.imagePreviewId) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById(config.imagePreviewId).src = e.target.result;
+        console.log("Poster image preview loaded");
+      };
+      reader.onerror = (e) => {
+        console.error("Error loading poster preview:", e);
+      };
+      reader.readAsDataURL(file);
+    } else if (config.type === "trailer" && config.videoPreviewId) {
+      const videoPreview = document.getElementById(config.videoPreviewId);
+      const source = videoPreview.querySelector("source");
+      const url = URL.createObjectURL(file);
+      source.src = url;
+      videoPreview.load();
+      console.log("Trailer video preview loaded");
+    } else if (config.type === "movie") {
+      console.log("Movie file ready for upload");
+    }
+
+    // Update upload area
+    const uploadArea = document.getElementById(config.uploadAreaId);
+    uploadArea.innerHTML = `
+            <i class="fas fa-check-circle fa-3x mb-3" style="color: var(--success)"></i>
+            <h5>File Ready</h5>
+            <p class="text-secondary mb-3">
+                ${file.name}<br>
+                ${formatFileSize(file.size)}
+            </p>
+            <button type="button" class="btn btn-outline-secondary" onclick="clearFile('${
+              config.type
+            }')">
+                <i class="fas fa-redo me-2"></i>Change File
+            </button>
+        `;
+
+    console.log(`Preview shown for ${config.type} file`);
+  }
+
+  function clearFile(type) {
+    console.log(`Clearing ${type} file`);
+    const config = CONFIG[type];
+    if (!config) return;
+
+    // Remove file
+    delete files[type];
+
+    // Reset input
+    const fileInput = document.getElementById(config.inputId);
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    // Hide preview
+    const preview = document.getElementById(config.previewId);
+    if (preview) {
+      preview.classList.add("d-none");
+    }
+
+    // Reset upload area
+    const uploadArea = document.getElementById(config.uploadAreaId);
+    if (uploadArea) {
+      const icon =
+        type === "movie" ? "film" : type === "poster" ? "image" : "video";
+      const name =
+        type === "movie"
+          ? "Movie File"
+          : type === "poster"
+          ? "Poster Image"
+          : "Trailer Video";
+      const maxSize =
+        type === "movie" ? "4GB" : type === "poster" ? "20MB" : "1GB";
+
+      uploadArea.innerHTML = `
+                <i class="fas fa-${icon} fa-3x mb-3" style="color: var(--text-secondary)"></i>
+                <h5>Drag & Drop ${name}</h5>
+                <p class="text-secondary mb-3">
+                    Max size: ${maxSize}<br>
+                    Supported: .${config.allowed.join(", .")}
+                </p>
+                <button type="button" class="btn btn-outline-primary" id="browse${
+                  type.charAt(0).toUpperCase() + type.slice(1)
+                }">
+                    <i class="fas fa-folder-open me-2"></i>Browse Files
+                </button>
+            `;
+
+      // Re-attach event listeners
+      const newBrowseBtn = uploadArea.querySelector(
+        `#browse${type.charAt(0).toUpperCase() + type.slice(1)}`
+      );
+
+      if (newBrowseBtn && fileInput) {
+        newBrowseBtn.addEventListener("click", () => {
+          console.log(`Re-attached browse button for ${type}`);
+          fileInput.click();
+        });
+      }
+    }
+
+    console.log(`Cleared ${type} file`);
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  }
+
+  // Form validation
+  document
+    .getElementById("addMovieForm")
+    .addEventListener("submit", function (e) {
+      console.log("Form submission started");
+      console.log("Files to upload:", Object.keys(files));
+
+      const title = document.getElementById("title").value.trim();
+      const year = document.getElementById("release_year").value;
+
+      if (!title) {
+        e.preventDefault();
+        alert("Please enter a movie title.");
+        document.getElementById("title").focus();
+        return;
+      }
+
+      if (!year) {
+        e.preventDefault();
+        alert("Please enter a release year.");
+        document.getElementById("release_year").focus();
+        return;
+      }
+
+      // Show loading state
+      const submitButton = document.getElementById("submitButton");
+      submitButton.disabled = true;
+      submitButton.innerHTML =
+        '<i class="fas fa-spinner fa-spin me-2"></i>Adding Movie...';
+
+      console.log("Form validation passed, submitting...");
+    });
+
+  // Initialize form
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("Add movie form initialized");
+
+    // Set current year as default for release year
+    const yearInput = document.getElementById("release_year");
+    if (yearInput && !yearInput.value) {
+      yearInput.value = new Date().getFullYear();
+    }
+
+    // Enable Bootstrap tabs
+    const triggerTabList = document.querySelectorAll("#uploadTabs button");
+    triggerTabList.forEach((triggerEl) => {
+      const tabTrigger = new bootstrap.Tab(triggerEl);
+      triggerEl.addEventListener("click", (event) => {
+        event.preventDefault();
+        tabTrigger.show();
+        console.log(`Switched to tab: ${triggerEl.id}`);
+      });
+    });
+
+    // Log allowed extensions
+    console.log("Allowed extensions:", CONFIG);
+  });
+</script>
+{% endblock %}

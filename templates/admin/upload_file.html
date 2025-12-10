@@ -1,0 +1,689 @@
+{% extends "base.html" %} {% block title %}Upload Movie File - Admin{% endblock
+%} {% block content %}
+<div class="container mt-5 pt-5">
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a
+              href="{{ url_for('admin_movies') }}"
+              style="color: var(--primary-blue)"
+            >
+              <i class="fas fa-film me-1"></i>Movies
+            </a>
+          </li>
+          <li class="breadcrumb-item">
+            <a
+              href="{{ url_for('admin_edit_movie', movie_id=movie.id) }}"
+              style="color: var(--primary-blue)"
+            >
+              {{ movie.title }}
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            Upload File
+          </li>
+        </ol>
+      </nav>
+
+      <h1 class="h2 mb-4" style="color: var(--text-primary)">
+        <i class="fas fa-upload me-2" style="color: var(--primary-blue)"></i>
+        Upload Movie File
+      </h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-file-video me-2"></i>Upload Movie File
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- Movie Info -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              {% if movie.poster_url %}
+              <img
+                src="{% if movie.poster_url.startswith('posters/') %}{{ url_for('uploaded_file', filename=movie.poster_url) }}{% else %}{{ movie.poster_url }}{% endif %}"
+                alt="{{ movie.title }}"
+                class="rounded w-100"
+                style="height: 200px; object-fit: cover"
+                onerror="this.src='https://via.placeholder.com/150x225/172a45/8892b0?text=Poster'"
+              />
+              {% else %}
+              <div
+                class="rounded d-flex align-items-center justify-content-center"
+                style="height: 200px; background: var(--secondary-dark)"
+              >
+                <i
+                  class="fas fa-film fa-3x"
+                  style="color: var(--text-secondary)"
+                ></i>
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-md-9">
+              <h4>{{ movie.title }}</h4>
+              <p class="text-secondary mb-2">
+                {{ movie.release_year }} {% if movie.duration %}• {{
+                movie.duration }} min{% endif %} {% if movie.imdb_rating %}• ⭐
+                {{ movie.imdb_rating }}/10{% endif %}
+              </p>
+              <p class="text-secondary">{{ movie.description[:200] }}...</p>
+
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for genre in movie.genres %}
+                <span class="badge bg-secondary">{{ genre.name }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Current File Status -->
+          <div
+            class="alert {% if movie.file_path %}alert-info{% else %}alert-warning{% endif %} mb-4"
+          >
+            <div class="d-flex align-items-center">
+              <i
+                class="fas {% if movie.file_path %}fa-info-circle{% else %}fa-exclamation-triangle{% endif %} fa-lg me-3"
+              ></i>
+              <div>
+                <h6 class="mb-1">Current File Status</h6>
+                {% if movie.file_path %}
+                <p class="mb-1">
+                  <strong>File exists:</strong>
+                  {{ movie.file_format|upper }} • {{
+                  movie.file_size|filesizeformat if movie.file_size else
+                  'Unknown size' }}
+                </p>
+                <small>
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  Uploading a new file will replace the existing one.
+                </small>
+                {% else %}
+                <p class="mb-0">
+                  No movie file uploaded yet. Users cannot download this movie.
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <div class="mb-4">
+              <label for="movie_file" class="form-label fw-bold"
+                >Select Movie File</label
+              >
+              <div
+                class="upload-area p-5 text-center border rounded"
+                style="border-color: var(--border-color); border-style: dashed"
+              >
+                <i
+                  class="fas fa-cloud-upload-alt fa-3x mb-3"
+                  style="color: var(--text-secondary)"
+                ></i>
+                <h5>Drag & Drop or Click to Upload</h5>
+                <p class="text-secondary mb-3">
+                  Maximum file size: 4GB<br />
+                  Allowed formats: MP4, MKV, AVI, MOV, WMV, FLV, WEBM
+                </p>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="movie_file"
+                  name="movie_file"
+                  accept=".mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.m4v,.mpg,.mpeg"
+                  style="display: none"
+                />
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="browseFile()"
+                >
+                  <i class="fas fa-folder-open me-2"></i>Browse Files
+                </button>
+              </div>
+              <div id="fileInfo" class="mt-3" style="display: none">
+                <div class="alert alert-success">
+                  <div
+                    class="d-flex align-items-center justify-content-between"
+                  >
+                    <div>
+                      <i class="fas fa-check-circle me-2"></i>
+                      <span id="fileName"></span>
+                      <small id="fileSize" class="ms-2"></small>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      onclick="clearFile()"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload Progress (hidden by default) -->
+            <div id="uploadProgress" class="mb-4" style="display: none">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Uploading...</span>
+                <span id="progressPercent">0%</span>
+              </div>
+              <div class="progress" style="height: 10px">
+                <div
+                  class="progress-bar"
+                  id="progressBar"
+                  role="progressbar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="text-center mt-2">
+                <span id="uploadStatus" class="text-secondary small"
+                  >Preparing upload...</span
+                >
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between">
+              <a
+                href="{{ url_for('admin_edit_movie', movie_id=movie.id) }}"
+                class="btn btn-outline-secondary"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Back to Edit
+              </a>
+
+              <div class="d-flex gap-2">
+                {% if movie.file_path %}
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteFileModal"
+                >
+                  <i class="fas fa-trash-alt me-2"></i>Delete File
+                </button>
+                {% endif %}
+
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="uploadButton"
+                  disabled
+                >
+                  <i class="fas fa-upload me-2"></i>Upload File
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Upload Instructions -->
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-question-circle me-2"></i>Upload Guidelines
+          </h5>
+        </div>
+        <div class="card-body">
+          <ul class="mb-0">
+            <li>Maximum file size: <strong>4GB</strong></li>
+            <li>Supported formats: MP4, MKV, AVI, MOV, WMV, FLV, WEBM</li>
+            <li>For best quality, use MP4 with H.264 video codec</li>
+            <li>Ensure proper audio synchronization</li>
+            <li>Recommended resolution: 720p or 1080p</li>
+            <li>Large files may take several minutes to upload</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- File Status Card -->
+      <div
+        class="card mb-4"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-database me-2"></i>Storage Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <small class="text-secondary d-block">Storage Location</small>
+            <code class="small">{{ upload_folder }}</code>
+          </div>
+
+          <div class="mb-3">
+            <small class="text-secondary d-block">Allowed Formats</small>
+            <code class="small">{{ allowed_extensions }}</code>
+          </div>
+
+          <div class="alert alert-warning small mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Ensure sufficient disk space before uploading large files
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div
+        class="card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Movie Statistics
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6 mb-3">
+              <small class="text-secondary d-block">Views</small>
+              <h4>{{ movie.views_count }}</h4>
+            </div>
+            <div class="col-6 mb-3">
+              <small class="text-secondary d-block">Downloads</small>
+              <h4>{{ movie.download_count }}</h4>
+            </div>
+            <div class="col-6 mb-3">
+              <small class="text-secondary d-block">Reviews</small>
+              {% set review_count = movie.reviews|length if movie.reviews else 0
+              %}
+              <h4>{{ review_count }}</h4>
+            </div>
+            <div class="col-6 mb-3">
+              <small class="text-secondary d-block">Watchlist</small>
+              {% set watchlist_count = movie.watchlist_items|length if
+              movie.watchlist_items else 0 %}
+              <h4>{{ watchlist_count }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete File Modal -->
+<div class="modal fade" id="deleteFileModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div
+      class="modal-content"
+      style="background: var(--card-bg); border-color: var(--border-color)"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Movie File</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Are you sure you want to delete the movie file for "<strong
+            >{{ movie.title }}</strong
+          >"?
+        </p>
+        <div class="alert alert-danger small">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          This will disable downloads for this movie until a new file is
+          uploaded.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form
+          method="POST"
+          action="{{ url_for('admin_delete_movie_file', movie_id=movie.id) }}"
+        >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash-alt me-2"></i>Delete File
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .upload-area {
+    background: var(--secondary-dark);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .upload-area:hover {
+    background: rgba(var(--primary-blue-rgb), 0.05);
+    border-color: var(--primary-blue) !important;
+  }
+
+  .upload-area.dragover {
+    background: rgba(var(--primary-blue-rgb), 0.1);
+    border-color: var(--primary-blue) !important;
+    transform: scale(1.01);
+  }
+
+  .progress-bar {
+    background-color: var(--primary-blue);
+    transition: width 0.3s ease;
+  }
+
+  .breadcrumb {
+    background: transparent;
+    padding: 0;
+  }
+
+  .breadcrumb-item a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .breadcrumb-item.active {
+    color: var(--text-primary);
+  }
+</style>
+
+<script>
+  let selectedFile = null;
+
+  // Initialize when DOM is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("Upload page initialized");
+
+    // File input handler
+    const fileInput = document.getElementById("movie_file");
+    if (fileInput) {
+      fileInput.addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          console.log("File selected:", file.name, file.size, file.type);
+          handleFileSelect(file);
+        }
+      });
+    }
+
+    // Drag and drop handlers
+    const uploadArea = document.querySelector(".upload-area");
+    if (uploadArea) {
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        uploadArea.addEventListener(eventName, highlight, false);
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        uploadArea.addEventListener(eventName, unhighlight, false);
+      });
+
+      function highlight() {
+        uploadArea.classList.add("dragover");
+      }
+
+      function unhighlight() {
+        uploadArea.classList.remove("dragover");
+      }
+
+      uploadArea.addEventListener("drop", function (e) {
+        const dt = e.dataTransfer;
+        const file = dt.files[0];
+        if (file) {
+          console.log("File dropped:", file.name);
+          document.getElementById("movie_file").files = dt.files;
+          handleFileSelect(file);
+        }
+      });
+    }
+
+    // Form submission handler
+    const uploadForm = document.getElementById("uploadForm");
+    if (uploadForm) {
+      uploadForm.addEventListener("submit", function (e) {
+        console.log("Form submit triggered");
+
+        if (!selectedFile) {
+          e.preventDefault();
+          alert("Please select a file to upload.");
+          return;
+        }
+
+        // Validate file before submission
+        if (!validateFile(selectedFile)) {
+          e.preventDefault();
+          return;
+        }
+
+        // Show progress bar
+        showUploadProgress();
+
+        // Note: We're using regular form submission, not AJAX
+        // The progress animation is just for visual feedback
+        simulateProgress();
+      });
+    }
+  });
+
+  // File selection handler
+  function handleFileSelect(file) {
+    // Validate file first
+    if (!validateFile(file)) {
+      return;
+    }
+
+    selectedFile = file;
+
+    // Update UI
+    const fileNameElement = document.getElementById("fileName");
+    const fileSizeElement = document.getElementById("fileSize");
+    const fileInfoElement = document.getElementById("fileInfo");
+    const uploadButton = document.getElementById("uploadButton");
+
+    if (fileNameElement) fileNameElement.textContent = file.name;
+    if (fileSizeElement)
+      fileSizeElement.textContent = formatFileSize(file.size);
+    if (fileInfoElement) fileInfoElement.style.display = "block";
+    if (uploadButton) uploadButton.disabled = false;
+
+    // Show upload area as success
+    const uploadArea = document.querySelector(".upload-area");
+    if (uploadArea) {
+      uploadArea.innerHTML = `
+        <i class="fas fa-check-circle fa-3x mb-3" style="color: var(--success)"></i>
+        <h5>File Selected</h5>
+        <p class="text-secondary mb-3">
+          ${file.name}<br>
+          ${formatFileSize(file.size)}
+        </p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary" onclick="clearFile()">
+            <i class="fas fa-times me-2"></i>Change File
+          </button>
+        </div>
+      `;
+    }
+
+    console.log("File selected and validated:", file.name);
+  }
+
+  // Validate file
+  function validateFile(file) {
+    // Check file size (4GB max)
+    const maxSize = 4 * 1024 * 1024 * 1024; // 4GB in bytes
+    if (file.size > maxSize) {
+      alert(
+        `File too large. Maximum size is 4GB.\nYour file: ${formatFileSize(
+          file.size
+        )}`
+      );
+      clearFile();
+      return false;
+    }
+
+    // Check file extension
+    const allowedExtensions = [
+      ".mp4",
+      ".mkv",
+      ".avi",
+      ".mov",
+      ".wmv",
+      ".flv",
+      ".webm",
+      ".m4v",
+      ".mpg",
+      ".mpeg",
+    ];
+    const fileExtension = "." + file.name.split(".").pop().toLowerCase();
+
+    if (!allowedExtensions.includes(fileExtension)) {
+      alert(
+        "Invalid file type. Allowed formats:\n" + allowedExtensions.join(", ")
+      );
+      clearFile();
+      return false;
+    }
+
+    return true;
+  }
+
+  // Clear selected file
+  function clearFile() {
+    console.log("Clearing selected file");
+    selectedFile = null;
+
+    const fileInput = document.getElementById("movie_file");
+    const fileInfoElement = document.getElementById("fileInfo");
+    const uploadButton = document.getElementById("uploadButton");
+
+    if (fileInput) fileInput.value = "";
+    if (fileInfoElement) fileInfoElement.style.display = "none";
+    if (uploadButton) uploadButton.disabled = true;
+
+    // Reset upload area
+    const uploadArea = document.querySelector(".upload-area");
+    if (uploadArea) {
+      uploadArea.innerHTML = `
+        <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: var(--text-secondary)"></i>
+        <h5>Drag & Drop or Click to Upload</h5>
+        <p class="text-secondary mb-3">
+          Maximum file size: 4GB<br>
+          Allowed formats: MP4, MKV, AVI, MOV, WMV, FLV, WEBM
+        </p>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('movie_file').click()">
+          <i class="fas fa-folder-open me-2"></i>Browse Files
+        </button>
+      `;
+    }
+
+    // Hide progress if visible
+    const uploadProgress = document.getElementById("uploadProgress");
+    if (uploadProgress) {
+      uploadProgress.style.display = "none";
+    }
+  }
+
+  // Format file size
+  function formatFileSize(bytes) {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  }
+
+  // Show upload progress
+  function showUploadProgress() {
+    const uploadProgress = document.getElementById("uploadProgress");
+    const uploadButton = document.getElementById("uploadButton");
+
+    if (uploadProgress) {
+      uploadProgress.style.display = "block";
+    }
+
+    if (uploadButton) {
+      uploadButton.disabled = true;
+      uploadButton.innerHTML =
+        '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+    }
+  }
+
+  // Simulate progress (for visual feedback during actual upload)
+  function simulateProgress() {
+    let progress = 0;
+    const progressBar = document.getElementById("progressBar");
+    const progressPercent = document.getElementById("progressPercent");
+    const uploadStatus = document.getElementById("uploadStatus");
+
+    if (!progressBar || !progressPercent || !uploadStatus) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      // Increment progress randomly (faster at start, slower at end)
+      let increment;
+      if (progress < 70) {
+        increment = 5 + Math.random() * 10;
+      } else if (progress < 90) {
+        increment = 2 + Math.random() * 5;
+      } else {
+        increment = 0.5 + Math.random() * 2;
+      }
+
+      progress += increment;
+      if (progress > 100) progress = 100;
+
+      progressBar.style.width = progress + "%";
+      progressPercent.textContent = Math.round(progress) + "%";
+
+      // Update status text
+      if (progress < 30) {
+        uploadStatus.textContent = "Preparing upload...";
+      } else if (progress < 60) {
+        uploadStatus.textContent = "Uploading file...";
+      } else if (progress < 90) {
+        uploadStatus.textContent = "Processing file...";
+      } else if (progress === 100) {
+        uploadStatus.textContent = "Upload complete! Redirecting...";
+        clearInterval(interval);
+
+        setTimeout(() => {}, 500);
+      }
+    }, 200);
+  }
+
+  // Browse file button handler (alternative approach)
+  function browseFile() {
+    const fileInput = document.getElementById("movie_file");
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+</script>
+{% endblock %}
