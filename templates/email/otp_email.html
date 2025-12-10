@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Your Email - CineWave</title>
+    <style>
+      /* Black & Blue Theme */
+      :root {
+        --primary-blue: #3b82f6;
+        --secondary-blue: #1d4ed8;
+        --accent-blue: #60a5fa;
+        --dark-bg: #000000;
+        --card-bg: #111827;
+        --text-light: #f3f4f6;
+        --text-muted: #9ca3af;
+        --border-color: #374151;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background-color: var(--dark-bg);
+        color: var(--text-light);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(
+          135deg,
+          var(--dark-bg) 0%,
+          var(--secondary-blue) 100%
+        );
+        padding: 40px 20px;
+        text-align: center;
+        border-radius: 8px 8px 0 0;
+        border-bottom: 3px solid var(--primary-blue);
+      }
+
+      .logo {
+        color: var(--primary-blue);
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        display: inline-block;
+      }
+
+      .content {
+        background-color: var(--card-bg);
+        padding: 40px;
+        border-radius: 0 0 8px 8px;
+        border: 1px solid var(--border-color);
+        border-top: none;
+      }
+
+      .otp-box {
+        background-color: #1f2937;
+        border: 2px solid var(--primary-blue);
+        border-radius: 8px;
+        padding: 25px;
+        text-align: center;
+        margin: 30px 0;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+      }
+
+      .otp {
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: 10px;
+        color: var(--primary-blue);
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        background-color: rgba(59, 130, 246, 0.1);
+        padding: 15px;
+        border-radius: 6px;
+        display: inline-block;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+        color: var(--text-muted);
+        font-size: 14px;
+      }
+
+      .btn {
+        display: inline-block;
+        background: linear-gradient(
+          135deg,
+          var(--primary-blue) 0%,
+          var(--secondary-blue) 100%
+        );
+        color: white;
+        text-decoration: none;
+        padding: 14px 35px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-top: 20px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4);
+        background: linear-gradient(
+          135deg,
+          var(--secondary-blue) 0%,
+          #1e40af 100%
+        );
+      }
+
+      p {
+        color: var(--text-muted);
+        margin-bottom: 15px;
+      }
+
+      h1 {
+        color: var(--text-light);
+      }
+
+      strong {
+        color: var(--text-light);
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 10px;
+        }
+
+        .content {
+          padding: 25px;
+        }
+
+        .otp {
+          font-size: 28px;
+          letter-spacing: 8px;
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">CineWave</div>
+        <h1 style="margin: 0; color: #e6f1ff">Email Verification</h1>
+      </div>
+
+      <div class="content">
+        <p>Hello,</p>
+        <p>
+          Thank you for registering with CineWave! To complete your
+          registration, please use the following One-Time Password (OTP) to
+          verify your email address:
+        </p>
+
+        <div class="otp-box">
+          <p style="margin: 0; color: #8892b0">Your verification code is:</p>
+          <div class="otp">{{ otp }}</div>
+          <p style="margin: 0; color: #8892b0; font-size: 14px">
+            Valid for 10 minutes
+          </p>
+        </div>
+
+        <p>
+          Enter this code on the registration page to complete your account
+          setup. If you didn't request this verification, please ignore this
+          email.
+        </p>
+
+        <p style="margin-top: 30px">
+          <strong>Note:</strong> This is an automated email. Please do not reply
+          to this message.
+        </p>
+
+        <div style="text-align: center">
+          <a href="{{ site_url }}" class="btn">Go to CineWave</a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>&copy; 2024 CineWave. All rights reserved.</p>
+        <p>This email was sent to you because you registered on CineWave.</p>
+        <p style="font-size: 12px; color: #a8b2d1">
+          CineWave HQ<br />
+          123 Movie Street, Hollywood, CA 90210
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
