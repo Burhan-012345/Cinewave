@@ -1,0 +1,907 @@
+{% extends "base.html" %} {% block title %}Cookie Policy - CineWave{% endblock
+%} {% block content %}
+<style>
+  .cookies-content h2 {
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: 10px;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .cookies-content h2:after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: var(--primary-blue);
+  }
+
+  code {
+    background-color: var(--tertiary-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: var(--primary-blue);
+    font-size: 0.875em;
+  }
+
+  .list-group-item-action:hover {
+    background-color: var(--secondary-dark) !important;
+    color: var(--primary-blue) !important;
+    border-radius: var(--radius);
+    padding-left: 1rem !important;
+  }
+
+  .modal-content {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+  }
+
+  .form-check-input:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+
+  .form-check-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .table {
+    background-color: var(--secondary-dark);
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .table th,
+  .table td {
+    border-color: var(--border-color);
+    padding: 0.75rem 1rem;
+  }
+
+  .table thead th {
+    background-color: var(--tertiary-dark);
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
+  }
+
+  .badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+  }
+
+  .alert {
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    padding: 1rem;
+  }
+
+  .alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: var(--info);
+  }
+
+  .alert-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+  }
+
+  .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+  }
+
+  #cookieConsentBanner {
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+</style>
+<div class="container mt-5 pt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+      <!-- Header -->
+      <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold mb-3" style="color: var(--text-primary)">
+          <i
+            class="fas fa-cookie-bite me-2"
+            style="color: var(--primary-blue)"
+          ></i>
+          Cookie Policy
+        </h1>
+        <p class="lead text-secondary">Last Updated: January 1, 2024</p>
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+          <span class="badge bg-primary">Essential</span>
+          <span class="badge bg-success">Analytical</span>
+          <span class="badge bg-info">Marketing</span>
+          <span class="badge bg-warning">Third-Party</span>
+        </div>
+      </div>
+
+      <!-- Cookie Consent Banner -->
+      <div
+        class="card mb-5"
+        id="cookieConsentBanner"
+        style="
+          background: var(--secondary-dark);
+          border-color: var(--primary-blue);
+          display: none;
+        "
+      >
+        <div class="card-body">
+          <div
+            class="d-flex flex-column flex-md-row align-items-center justify-content-between"
+          >
+            <div class="mb-3 mb-md-0">
+              <h6 class="mb-1">
+                <i class="fas fa-cookie me-2"></i>Cookie Preferences
+              </h6>
+              <p class="text-secondary small mb-0">
+                We use cookies to enhance your experience. Choose your
+                preferences below.
+              </p>
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                onclick="rejectAllCookies()"
+              >
+                <i class="fas fa-ban me-1"></i>Reject All
+              </button>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                onclick="openCookieSettings()"
+              >
+                <i class="fas fa-cog me-1"></i>Customize
+              </button>
+              <button
+                class="btn btn-sm btn-primary"
+                onclick="acceptAllCookies()"
+              >
+                <i class="fas fa-check me-1"></i>Accept All
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cookie Settings Modal -->
+      <div class="modal fade" id="cookieSettingsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div
+            class="modal-content"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="fas fa-sliders-h me-2"></i>Cookie Settings
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-4">
+                <div class="form-check form-switch mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="essentialCookies"
+                    checked
+                    disabled
+                  />
+                  <label class="form-check-label" for="essentialCookies">
+                    <strong>Essential Cookies</strong>
+                    <p class="text-secondary small mb-0">
+                      Required for basic site functionality. Cannot be disabled.
+                    </p>
+                  </label>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="analyticsCookies"
+                  />
+                  <label class="form-check-label" for="analyticsCookies">
+                    <strong>Analytics Cookies</strong>
+                    <p class="text-secondary small mb-0">
+                      Help us understand how visitors interact with our website.
+                    </p>
+                  </label>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="preferencesCookies"
+                  />
+                  <label class="form-check-label" for="preferencesCookies">
+                    <strong>Preference Cookies</strong>
+                    <p class="text-secondary small mb-0">
+                      Remember your settings and preferences.
+                    </p>
+                  </label>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="marketingCookies"
+                  />
+                  <label class="form-check-label" for="marketingCookies">
+                    <strong>Marketing Cookies</strong>
+                    <p class="text-secondary small mb-0">
+                      Used to deliver relevant advertisements.
+                    </p>
+                  </label>
+                </div>
+              </div>
+
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Your preferences will be saved for 365 days. You can change them
+                anytime by visiting this page.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="saveCookiePreferences()"
+              >
+                <i class="fas fa-save me-2"></i>Save Preferences
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="cookies-content">
+        <!-- What are Cookies -->
+        <div class="mb-5">
+          <h2 class="h3 mb-3" style="color: var(--text-primary)">
+            <i class="fas fa-question-circle me-2"></i>What Are Cookies?
+          </h2>
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <div
+                class="card"
+                style="
+                  background: var(--secondary-dark);
+                  border-color: var(--border-color);
+                "
+              >
+                <div class="card-body">
+                  <p class="text-secondary mb-0">
+                    Cookies are small text files that are placed on your
+                    computer or mobile device when you visit a website. They are
+                    widely used to make websites work more efficiently and
+                    provide information to the website owners.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 text-center">
+              <div
+                class="p-4"
+                style="background: var(--card-bg); border-radius: var(--radius)"
+              >
+                <i
+                  class="fas fa-cookie fa-4x mb-3"
+                  style="color: var(--primary-blue)"
+                ></i>
+                <p class="text-secondary small mb-0">
+                  Small text files stored on your device
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Types of Cookies -->
+        <div class="mb-5">
+          <h2 class="h3 mb-3" style="color: var(--text-primary)">
+            <i class="fas fa-list me-2"></i>Types of Cookies We Use
+          </h2>
+
+          <!-- Essential Cookies -->
+          <div
+            class="card mb-3"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <div class="me-3">
+                  <span class="badge bg-primary">
+                    <i class="fas fa-exclamation-circle"></i>
+                  </span>
+                </div>
+                <div class="flex-grow-1">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="mb-1">Essential Cookies</h6>
+                    <span class="badge bg-secondary small">Always Active</span>
+                  </div>
+                  <p class="text-secondary small mb-2">
+                    These cookies are necessary for the website to function and
+                    cannot be switched off. They are usually only set in
+                    response to actions made by you.
+                  </p>
+                  <div class="text-secondary small">
+                    <strong>Purpose:</strong> User authentication, security,
+                    basic functionality
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Cookies -->
+          <div
+            class="card mb-3"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <div class="me-3">
+                  <span class="badge bg-success">
+                    <i class="fas fa-chart-line"></i>
+                  </span>
+                </div>
+                <div class="flex-grow-1">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="mb-1">Analytics Cookies</h6>
+                    <span class="badge bg-secondary small">Optional</span>
+                  </div>
+                  <p class="text-secondary small mb-2">
+                    These cookies allow us to count visits and traffic sources
+                    so we can measure and improve the performance of our site.
+                  </p>
+                  <div class="text-secondary small">
+                    <strong>Examples:</strong> Google Analytics, Mixpanel,
+                    Hotjar
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preference Cookies -->
+          <div
+            class="card mb-3"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <div class="me-3">
+                  <span class="badge bg-info">
+                    <i class="fas fa-cogs"></i>
+                  </span>
+                </div>
+                <div class="flex-grow-1">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="mb-1">Preference Cookies</h6>
+                    <span class="badge bg-secondary small">Optional</span>
+                  </div>
+                  <p class="text-secondary small mb-2">
+                    These cookies enable the website to provide enhanced
+                    functionality and personalization based on your preferences.
+                  </p>
+                  <div class="text-secondary small">
+                    <strong>Examples:</strong> Language selection, theme
+                    preferences, volume settings
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Marketing Cookies -->
+          <div
+            class="card mb-3"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <div class="me-3">
+                  <span class="badge bg-warning">
+                    <i class="fas fa-bullhorn"></i>
+                  </span>
+                </div>
+                <div class="flex-grow-1">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="mb-1">Marketing Cookies</h6>
+                    <span class="badge bg-secondary small">Optional</span>
+                  </div>
+                  <p class="text-secondary small mb-2">
+                    These cookies are used to track visitors across websites to
+                    display relevant advertisements.
+                  </p>
+                  <div class="text-secondary small">
+                    <strong>Examples:</strong> Facebook Pixel, Google Ads,
+                    LinkedIn Insight
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Cookie Table -->
+        <div class="mb-5">
+          <h2 class="h3 mb-3" style="color: var(--text-primary)">
+            <i class="fas fa-table me-2"></i>Detailed Cookie Information
+          </h2>
+          <div
+            class="card"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table" style="color: var(--text-primary)">
+                  <thead>
+                    <tr>
+                      <th>Cookie Name</th>
+                      <th>Type</th>
+                      <th>Provider</th>
+                      <th>Purpose</th>
+                      <th>Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>session_id</code></td>
+                      <td><span class="badge bg-primary">Essential</span></td>
+                      <td>CineWave</td>
+                      <td class="text-secondary small">
+                        Maintains user session state
+                      </td>
+                      <td class="text-secondary small">Session</td>
+                    </tr>
+                    <tr>
+                      <td><code>csrf_token</code></td>
+                      <td><span class="badge bg-primary">Essential</span></td>
+                      <td>CineWave</td>
+                      <td class="text-secondary small">
+                        Cross-site request forgery protection
+                      </td>
+                      <td class="text-secondary small">Session</td>
+                    </tr>
+                    <tr>
+                      <td><code>theme_pref</code></td>
+                      <td><span class="badge bg-info">Preference</span></td>
+                      <td>CineWave</td>
+                      <td class="text-secondary small">
+                        Stores user theme preference
+                      </td>
+                      <td class="text-secondary small">1 year</td>
+                    </tr>
+                    <tr>
+                      <td><code>_ga</code></td>
+                      <td><span class="badge bg-success">Analytics</span></td>
+                      <td>Google</td>
+                      <td class="text-secondary small">
+                        Distinguishes unique users
+                      </td>
+                      <td class="text-secondary small">2 years</td>
+                    </tr>
+                    <tr>
+                      <td><code>_gid</code></td>
+                      <td><span class="badge bg-success">Analytics</span></td>
+                      <td>Google</td>
+                      <td class="text-secondary small">
+                        Distinguishes unique users
+                      </td>
+                      <td class="text-secondary small">24 hours</td>
+                    </tr>
+                    <tr>
+                      <td><code>_fbp</code></td>
+                      <td><span class="badge bg-warning">Marketing</span></td>
+                      <td>Facebook</td>
+                      <td class="text-secondary small">
+                        Facebook advertisement delivery
+                      </td>
+                      <td class="text-secondary small">3 months</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Managing Cookies -->
+        <div class="mb-5">
+          <h2 class="h3 mb-3" style="color: var(--text-primary)">
+            <i class="fas fa-tools me-2"></i>Managing Cookies
+          </h2>
+          <div class="row">
+            <div class="col-md-6 mb-4">
+              <div
+                class="card h-100"
+                style="
+                  background: var(--card-bg);
+                  border-color: var(--border-color);
+                "
+              >
+                <div class="card-body">
+                  <h6 class="card-title mb-3">
+                    <i class="fas fa-desktop me-2"></i>Browser Settings
+                  </h6>
+                  <p class="text-secondary small mb-3">
+                    You can control and/or delete cookies as you wish. You can
+                    delete all cookies that are already on your computer and set
+                    most browsers to prevent them from being placed.
+                  </p>
+                  <div class="list-group list-group-flush">
+                    <a
+                      href="https://support.google.com/chrome/answer/95647"
+                      target="_blank"
+                      class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                    >
+                      <i class="fab fa-chrome me-2"></i>Google Chrome
+                    </a>
+                    <a
+                      href="https://support.mozilla.org/en-US/kb/clear-cookies-and-site-data-firefox"
+                      target="_blank"
+                      class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                    >
+                      <i class="fab fa-firefox me-2"></i>Mozilla Firefox
+                    </a>
+                    <a
+                      href="https://support.apple.com/guide/safari/manage-cookies-and-website-data-sfri11471/mac"
+                      target="_blank"
+                      class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                    >
+                      <i class="fab fa-safari me-2"></i>Apple Safari
+                    </a>
+                    <a
+                      href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09"
+                      target="_blank"
+                      class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                    >
+                      <i class="fab fa-edge me-2"></i>Microsoft Edge
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-4">
+              <div
+                class="card h-100"
+                style="
+                  background: var(--card-bg);
+                  border-color: var(--border-color);
+                "
+              >
+                <div class="card-body">
+                  <h6 class="card-title mb-3">
+                    <i class="fas fa-mobile-alt me-2"></i>Mobile Devices
+                  </h6>
+                  <p class="text-secondary small mb-3">
+                    On mobile devices, you can manage cookies through your
+                    device settings:
+                  </p>
+                  <ul class="text-secondary small">
+                    <li>
+                      <strong>iOS:</strong> Settings → Safari → Advanced →
+                      Website Data
+                    </li>
+                    <li>
+                      <strong>Android:</strong> Chrome → Settings → Site
+                      Settings → Cookies
+                    </li>
+                    <li>
+                      <strong>Third-Party Apps:</strong> Check individual app
+                      settings
+                    </li>
+                  </ul>
+                  <div class="alert alert-info small mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Note that blocking cookies may affect your experience on our
+                    website.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Third-Party Cookies -->
+        <div class="mb-5">
+          <h2 class="h3 mb-3" style="color: var(--text-primary)">
+            <i class="fas fa-external-link-alt me-2"></i>Third-Party Cookies
+          </h2>
+          <div
+            class="card"
+            style="
+              background: var(--secondary-dark);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <p class="text-secondary mb-3">
+                Some cookies are placed by third parties that appear on our
+                pages. We do not control the dissemination of these cookies. You
+                should check the third-party websites for more information about
+                these.
+              </p>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div
+                    class="text-center p-3"
+                    style="
+                      background: var(--card-bg);
+                      border-radius: var(--radius);
+                    "
+                  >
+                    <i
+                      class="fab fa-google fa-2x mb-2"
+                      style="color: var(--primary-blue)"
+                    ></i>
+                    <h6 class="small">Google Analytics</h6>
+                    <p class="text-secondary small mb-0">Website analytics</p>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div
+                    class="text-center p-3"
+                    style="
+                      background: var(--card-bg);
+                      border-radius: var(--radius);
+                    "
+                  >
+                    <i
+                      class="fab fa-facebook fa-2x mb-2"
+                      style="color: var(--primary-blue)"
+                    ></i>
+                    <h6 class="small">Facebook Pixel</h6>
+                    <p class="text-secondary small mb-0">
+                      Advertising analytics
+                    </p>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div
+                    class="text-center p-3"
+                    style="
+                      background: var(--card-bg);
+                      border-radius: var(--radius);
+                    "
+                  >
+                    <i
+                      class="fab fa-stripe fa-2x mb-2"
+                      style="color: var(--primary-blue)"
+                    ></i>
+                    <h6 class="small">Stripe</h6>
+                    <p class="text-secondary small mb-0">Payment processing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Updates -->
+        <div class="mb-5">
+          <h2 class="h3 mb-3" style="color: var(--text-primary)">
+            <i class="fas fa-history me-2"></i>Policy Updates
+          </h2>
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            We may update this Cookie Policy from time to time to reflect
+            changes in technology, legislation, or our data practices. We will
+            notify you of any material changes by posting the new policy on this
+            page.
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div
+          class="card mt-5"
+          style="
+            background: var(--secondary-dark);
+            border-color: var(--border-color);
+          "
+        >
+          <div class="card-body text-center">
+            <h5 class="card-title mb-3">
+              <i class="fas fa-question-circle me-2"></i>Need Help?
+            </h5>
+            <p class="text-secondary mb-4">
+              If you have questions about our use of cookies, please contact us.
+            </p>
+            <button class="btn btn-primary" onclick="openCookieSettings()">
+              <i class="fas fa-sliders-h me-2"></i>Update Cookie Preferences
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cookies-content h2 {
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: 10px;
+  }
+
+  code {
+    background-color: var(--tertiary-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+
+  .list-group-item-action:hover {
+    background-color: var(--secondary-dark) !important;
+  }
+</style>
+
+<script>
+  // Cookie management functions
+  function showCookieConsentBanner() {
+    if (!localStorage.getItem("cookiesAccepted")) {
+      document.getElementById("cookieConsentBanner").style.display = "block";
+    }
+  }
+
+  function acceptAllCookies() {
+    localStorage.setItem("cookiesAccepted", "true");
+    localStorage.setItem(
+      "cookiePreferences",
+      JSON.stringify({
+        essential: true,
+        analytics: true,
+        preferences: true,
+        marketing: true,
+      })
+    );
+    document.getElementById("cookieConsentBanner").style.display = "none";
+    showSuccessMessage("Cookie preferences saved successfully!");
+  }
+
+  function rejectAllCookies() {
+    localStorage.setItem("cookiesAccepted", "true");
+    localStorage.setItem(
+      "cookiePreferences",
+      JSON.stringify({
+        essential: true,
+        analytics: false,
+        preferences: false,
+        marketing: false,
+      })
+    );
+    document.getElementById("cookieConsentBanner").style.display = "none";
+    showSuccessMessage("Non-essential cookies rejected.");
+  }
+
+  function openCookieSettings() {
+    const modal = new bootstrap.Modal(
+      document.getElementById("cookieSettingsModal")
+    );
+    modal.show();
+
+    // Load current preferences
+    const preferences = JSON.parse(
+      localStorage.getItem("cookiePreferences") ||
+        '{"essential":true,"analytics":true,"preferences":true,"marketing":true}'
+    );
+
+    document.getElementById("analyticsCookies").checked = preferences.analytics;
+    document.getElementById("preferencesCookies").checked =
+      preferences.preferences;
+    document.getElementById("marketingCookies").checked = preferences.marketing;
+  }
+
+  function saveCookiePreferences() {
+    const preferences = {
+      essential: true,
+      analytics: document.getElementById("analyticsCookies").checked,
+      preferences: document.getElementById("preferencesCookies").checked,
+      marketing: document.getElementById("marketingCookies").checked,
+    };
+
+    localStorage.setItem("cookiesAccepted", "true");
+    localStorage.setItem("cookiePreferences", JSON.stringify(preferences));
+
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("cookieSettingsModal")
+    );
+    modal.hide();
+
+    showSuccessMessage("Cookie preferences saved successfully!");
+    document.getElementById("cookieConsentBanner").style.display = "none";
+  }
+
+  function showSuccessMessage(message) {
+    const alertDiv = document.createElement("div");
+    alertDiv.className =
+      "alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3";
+    alertDiv.style.zIndex = "9999";
+    alertDiv.innerHTML = `
+        <i class="fas fa-check-circle me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      if (alertDiv.parentNode) {
+        alertDiv.remove();
+      }
+    }, 5000);
+  }
+
+  // Show banner on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(showCookieConsentBanner, 1000);
+  });
+</script>
+{% endblock %}

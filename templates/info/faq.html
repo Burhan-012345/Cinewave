@@ -1,0 +1,1335 @@
+{% extends "base.html" %} {% block title %}FAQs - CineWave{% endblock %} {%
+block content %}
+<div class="container mt-5 pt-5">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold mb-3" style="color: var(--text-primary)">
+      <i
+        class="fas fa-question-circle me-2"
+        style="color: var(--primary-blue)"
+      ></i>
+      Frequently Asked Questions
+    </h1>
+    <p class="lead text-secondary">
+      Find quick answers to the most common questions about CineWave.
+    </p>
+
+    <!-- Search Bar -->
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div
+          class="card"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <div class="card-body">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                id="faqSearch"
+                placeholder="Search FAQs..."
+              />
+              <button class="btn btn-primary" onclick="searchFAQs()">
+                Search
+              </button>
+            </div>
+            <div class="mt-2 text-start">
+              <small class="text-secondary">
+                <i class="fas fa-lightbulb me-1"></i>
+                Search by keyword: "password", "payment", "streaming", "profile"
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Categories -->
+  <div class="row mb-5">
+    <div class="col-md-3 col-6 mb-3">
+      <a
+        href="#account"
+        class="text-decoration-none"
+        onclick="scrollToCategory('account')"
+      >
+        <div
+          class="card text-center h-100"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i
+                class="fas fa-user fa-2x"
+                style="color: var(--primary-blue)"
+              ></i>
+            </div>
+            <h6 class="card-title mb-0">Account</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <a
+        href="#billing"
+        class="text-decoration-none"
+        onclick="scrollToCategory('billing')"
+      >
+        <div
+          class="card text-center h-100"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i
+                class="fas fa-credit-card fa-2x"
+                style="color: var(--primary-blue)"
+              ></i>
+            </div>
+            <h6 class="card-title mb-0">Billing</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <a
+        href="#streaming"
+        class="text-decoration-none"
+        onclick="scrollToCategory('streaming')"
+      >
+        <div
+          class="card text-center h-100"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i class="fas fa-tv fa-2x" style="color: var(--primary-blue)"></i>
+            </div>
+            <h6 class="card-title mb-0">Streaming</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <a
+        href="#technical"
+        class="text-decoration-none"
+        onclick="scrollToCategory('technical')"
+      >
+        <div
+          class="card text-center h-100"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i
+                class="fas fa-cogs fa-2x"
+                style="color: var(--primary-blue)"
+              ></i>
+            </div>
+            <h6 class="card-title mb-0">Technical</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- FAQ Categories -->
+  <div class="faq-content">
+    <!-- Account FAQs -->
+    <div class="mb-5" id="account">
+      <div class="d-flex align-items-center mb-4">
+        <div class="me-3">
+          <i class="fas fa-user fa-2x" style="color: var(--primary-blue)"></i>
+        </div>
+        <div>
+          <h2 class="h3 mb-0" style="color: var(--text-primary)">
+            Account & Profile
+          </h2>
+          <p class="text-secondary mb-0">
+            Questions about accounts, profiles, and settings
+          </p>
+        </div>
+      </div>
+
+      <div class="accordion" id="accountFAQs">
+        <!-- Question 1 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#accountFAQ1"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              How do I create a CineWave account?
+            </button>
+          </h2>
+          <div
+            id="accountFAQ1"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accountFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>Creating a CineWave account is easy:</p>
+              <ol>
+                <li>Click "Register" at the top right of the page</li>
+                <li>Enter your name, email, and create a password</li>
+                <li>
+                  Check your email for the verification OTP (valid for 10
+                  minutes)
+                </li>
+                <li>Enter the OTP on the registration page</li>
+                <li>Your account is now ready to use!</li>
+              </ol>
+              <p>
+                You can also sign up using Google for a faster registration
+                process.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#accountFAQ2"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              How do I reset my password?
+            </button>
+          </h2>
+          <div
+            id="accountFAQ2"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accountFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>To reset your password:</p>
+              <ol>
+                <li>
+                  Go to the
+                  <a href="{{ url_for('forgot_password') }}">Forgot Password</a>
+                  page
+                </li>
+                <li>Enter your email address</li>
+                <li>
+                  Check your email for a reset link (valid for 10 minutes)
+                </li>
+                <li>Click the link and create a new password</li>
+                <li>Login with your new password</li>
+              </ol>
+              <div class="alert alert-info small mt-2">
+                <i class="fas fa-info-circle me-2"></i>
+                Password requirements: 8+ characters, uppercase letter, number,
+                special character, no spaces
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#accountFAQ3"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              Can I have multiple profiles on one account?
+            </button>
+          </h2>
+          <div
+            id="accountFAQ3"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accountFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>Yes! CineWave supports multiple profiles:</p>
+              <ul>
+                <li>Each account can have up to 5 profiles</li>
+                <li>
+                  Each profile has its own watch history and recommendations
+                </li>
+                <li>You can create kids profiles with content restrictions</li>
+                <li>Switch between profiles easily from the profile menu</li>
+              </ul>
+              <p>To create a new profile:</p>
+              <ol>
+                <li>
+                  Go to your
+                  <a href="{{ url_for('profiles') }}">Profiles</a> page
+                </li>
+                <li>Click "Create Profile"</li>
+                <li>Enter a name and choose settings</li>
+                <li>Click "Create"</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#accountFAQ4"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              How do I delete my account?
+            </button>
+          </h2>
+          <div
+            id="accountFAQ4"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accountFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>To delete your account:</p>
+              <ol>
+                <li>Go to Account Settings</li>
+                <li>Scroll to "Account Management"</li>
+                <li>Click "Delete Account"</li>
+                <li>Confirm your password</li>
+                <li>Select a reason for deletion</li>
+                <li>Click "Delete My Account"</li>
+              </ol>
+              <div class="alert alert-warning small mt-2">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Warning:</strong> Account deletion is permanent and
+                irreversible. All your data, including watch history and
+                preferences, will be permanently deleted.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billing FAQs -->
+    <div class="mb-5" id="billing">
+      <div class="d-flex align-items-center mb-4">
+        <div class="me-3">
+          <i
+            class="fas fa-credit-card fa-2x"
+            style="color: var(--primary-blue)"
+          ></i>
+        </div>
+        <div>
+          <h2 class="h3 mb-0" style="color: var(--text-primary)">
+            Billing & Payments
+          </h2>
+          <p class="text-secondary mb-0">
+            Questions about subscriptions, payments, and refunds
+          </p>
+        </div>
+      </div>
+
+      <div class="accordion" id="billingFAQs">
+        <!-- Question 1 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#billingFAQ1"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              What payment methods do you accept?
+            </button>
+          </h2>
+          <div
+            id="billingFAQ1"
+            class="accordion-collapse collapse"
+            data-bs-parent="#billingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>We accept various payment methods:</p>
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class="small">Credit/Debit Cards</h6>
+                  <ul class="text-secondary small">
+                    <li>Visa</li>
+                    <li>MasterCard</li>
+                    <li>American Express</li>
+                    <li>Discover</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="small">Digital Wallets</h6>
+                  <ul class="text-secondary small">
+                    <li>PayPal</li>
+                    <li>Google Pay</li>
+                    <li>Apple Pay</li>
+                    <li>Samsung Pay</li>
+                  </ul>
+                </div>
+              </div>
+              <p class="small">
+                All payments are processed securely with encryption and fraud
+                protection.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#billingFAQ2"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              How do I cancel my subscription?
+            </button>
+          </h2>
+          <div
+            id="billingFAQ2"
+            class="accordion-collapse collapse"
+            data-bs-parent="#billingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>To cancel your subscription:</p>
+              <ol>
+                <li>Go to Account Settings → Subscription</li>
+                <li>Click "Cancel Subscription"</li>
+                <li>Select your reason for cancellation</li>
+                <li>Confirm the cancellation</li>
+              </ol>
+              <div class="alert alert-info small mt-2">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Note:</strong> Your subscription will remain active
+                until the end of your current billing period. You won't be
+                charged again after cancellation.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#billingFAQ3"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              Can I get a refund?
+            </button>
+          </h2>
+          <div
+            id="billingFAQ3"
+            class="accordion-collapse collapse"
+            data-bs-parent="#billingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>Our refund policy:</p>
+              <ul>
+                <li>
+                  <strong>Monthly subscriptions:</strong> No refunds for partial
+                  months
+                </li>
+                <li>
+                  <strong>Annual subscriptions:</strong> Pro-rated refunds
+                  within 30 days
+                </li>
+                <li>
+                  <strong>Technical issues:</strong> Case-by-case evaluation
+                </li>
+              </ul>
+              <p>To request a refund:</p>
+              <ol>
+                <li>Contact our support team with your account details</li>
+                <li>Explain the reason for the refund request</li>
+                <li>Provide any relevant information or screenshots</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#billingFAQ4"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              How do I update my payment information?
+            </button>
+          </h2>
+          <div
+            id="billingFAQ4"
+            class="accordion-collapse collapse"
+            data-bs-parent="#billingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>To update your payment information:</p>
+              <ol>
+                <li>Go to Account Settings → Billing</li>
+                <li>Click "Payment Methods"</li>
+                <li>
+                  Click "Add Payment Method" or "Edit" on existing methods
+                </li>
+                <li>Enter your new payment details</li>
+                <li>Click "Save"</li>
+              </ol>
+              <div class="alert alert-warning small mt-2">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Make sure to update your payment method before your next billing
+                date to avoid service interruption.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streaming FAQs -->
+    <div class="mb-5" id="streaming">
+      <div class="d-flex align-items-center mb-4">
+        <div class="me-3">
+          <i class="fas fa-tv fa-2x" style="color: var(--primary-blue)"></i>
+        </div>
+        <div>
+          <h2 class="h3 mb-0" style="color: var(--text-primary)">
+            Streaming & Content
+          </h2>
+          <p class="text-secondary mb-0">
+            Questions about watching movies and TV shows
+          </p>
+        </div>
+      </div>
+
+      <div class="accordion" id="streamingFAQs">
+        <!-- Question 1 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#streamingFAQ1"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              What internet speed do I need?
+            </button>
+          </h2>
+          <div
+            id="streamingFAQ1"
+            class="accordion-collapse collapse"
+            data-bs-parent="#streamingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>Recommended internet speeds:</p>
+              <div class="table-responsive">
+                <table class="table" style="color: var(--text-primary)">
+                  <thead>
+                    <tr>
+                      <th>Quality</th>
+                      <th>Minimum Speed</th>
+                      <th>Recommended Speed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>SD (480p)</td>
+                      <td>3 Mbps</td>
+                      <td>5 Mbps</td>
+                    </tr>
+                    <tr>
+                      <td>HD (720p)</td>
+                      <td>5 Mbps</td>
+                      <td>10 Mbps</td>
+                    </tr>
+                    <tr>
+                      <td>Full HD (1080p)</td>
+                      <td>10 Mbps</td>
+                      <td>15 Mbps</td>
+                    </tr>
+                    <tr>
+                      <td>4K Ultra HD</td>
+                      <td>25 Mbps</td>
+                      <td>35 Mbps</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small">
+                For best performance, use a wired connection instead of Wi-Fi
+                when possible.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#streamingFAQ2"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              Can I download movies to watch offline?
+            </button>
+          </h2>
+          <div
+            id="streamingFAQ2"
+            class="accordion-collapse collapse"
+            data-bs-parent="#streamingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>
+                Yes! Offline viewing is available with a Premium subscription:
+              </p>
+              <ul>
+                <li>Download movies and shows to your device</li>
+                <li>Watch without an internet connection</li>
+                <li>Available on mobile apps and desktop</li>
+                <li>Downloads expire after 30 days</li>
+                <li>Up to 100 downloads at a time</li>
+              </ul>
+              <p>To download content:</p>
+              <ol>
+                <li>Find the movie or show you want to download</li>
+                <li>Click the download button (downward arrow)</li>
+                <li>Choose the video quality</li>
+                <li>Wait for the download to complete</li>
+                <li>Find your downloads in the "Downloads" section</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#streamingFAQ3"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              How does "Continue Watching" work?
+            </button>
+          </h2>
+          <div
+            id="streamingFAQ3"
+            class="accordion-collapse collapse"
+            data-bs-parent="#streamingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>The Continue Watching feature:</p>
+              <ul>
+                <li>Automatically saves your progress in movies and shows</li>
+                <li>Works across all your devices and profiles</li>
+                <li>Saves your exact timestamp when you pause or stop</li>
+                <li>Appears on your dashboard and Continue Watching page</li>
+                <li>Shows progress percentage for each item</li>
+              </ul>
+              <p>To resume watching:</p>
+              <ol>
+                <li>
+                  Go to your
+                  <a href="{{ url_for('continue_watching') }}"
+                    >Continue Watching</a
+                  >
+                  page
+                </li>
+                <li>Click on any movie or show</li>
+                <li>It will resume from where you left off</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#streamingFAQ4"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              Why is content not available in my country?
+            </button>
+          </h2>
+          <div
+            id="streamingFAQ4"
+            class="accordion-collapse collapse"
+            data-bs-parent="#streamingFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>Content availability varies by region due to:</p>
+              <ul>
+                <li>
+                  <strong>Licensing agreements:</strong> Content providers grant
+                  rights by territory
+                </li>
+                <li>
+                  <strong>Distribution rights:</strong> Exclusive rights in
+                  certain regions
+                </li>
+                <li>
+                  <strong>Local regulations:</strong> Content restrictions in
+                  some countries
+                </li>
+                <li>
+                  <strong>Release schedules:</strong> Different premiere dates
+                  worldwide
+                </li>
+              </ul>
+              <p>What you can do:</p>
+              <ul>
+                <li>Check back regularly for new additions</li>
+                <li>Browse our available content library</li>
+                <li>Use search and filters to find available titles</li>
+                <li>Check our "New Arrivals" section</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical FAQs -->
+    <div class="mb-5" id="technical">
+      <div class="d-flex align-items-center mb-4">
+        <div class="me-3">
+          <i class="fas fa-cogs fa-2x" style="color: var(--primary-blue)"></i>
+        </div>
+        <div>
+          <h2 class="h3 mb-0" style="color: var(--text-primary)">
+            Technical Support
+          </h2>
+          <p class="text-secondary mb-0">
+            Questions about technical issues and troubleshooting
+          </p>
+        </div>
+      </div>
+
+      <div class="accordion" id="technicalFAQs">
+        <!-- Question 1 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#technicalFAQ1"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              Why is my video buffering or quality poor?
+            </button>
+          </h2>
+          <div
+            id="technicalFAQ1"
+            class="accordion-collapse collapse"
+            data-bs-parent="#technicalFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>If you're experiencing buffering or poor video quality:</p>
+              <ol>
+                <li>
+                  <strong>Check your internet speed:</strong> Run a speed test
+                  at speedtest.net
+                </li>
+                <li>
+                  <strong>Restart your router:</strong> Unplug for 30 seconds,
+                  then replug
+                </li>
+                <li>
+                  <strong>Use a wired connection:</strong> Ethernet is more
+                  stable than Wi-Fi
+                </li>
+                <li>
+                  <strong>Reduce quality:</strong> Try a lower resolution in
+                  video settings
+                </li>
+                <li>
+                  <strong>Close other apps:</strong> Bandwidth-intensive apps
+                  can interfere
+                </li>
+                <li>
+                  <strong>Clear cache:</strong> Clear your browser or app cache
+                </li>
+                <li>
+                  <strong>Update software:</strong> Ensure your browser or app
+                  is updated
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#technicalFAQ2"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              The app won't load or crashes
+            </button>
+          </h2>
+          <div
+            id="technicalFAQ2"
+            class="accordion-collapse collapse"
+            data-bs-parent="#technicalFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>If the app won't load or keeps crashing:</p>
+              <ol>
+                <li>
+                  <strong>Update the app:</strong> Check for updates in your app
+                  store
+                </li>
+                <li>
+                  <strong>Restart your device:</strong> Power cycle your phone,
+                  tablet, or TV
+                </li>
+                <li>
+                  <strong>Clear app cache:</strong> Go to device settings → Apps
+                  → CineWave → Clear Cache
+                </li>
+                <li>
+                  <strong>Reinstall the app:</strong> Uninstall and download
+                  again
+                </li>
+                <li>
+                  <strong>Check storage space:</strong> Ensure you have enough
+                  free storage
+                </li>
+                <li>
+                  <strong>Update device OS:</strong> Make sure your operating
+                  system is updated
+                </li>
+              </ol>
+              <div class="alert alert-info small mt-2">
+                <i class="fas fa-info-circle me-2"></i>
+                If problems persist, contact support with your device model and
+                OS version.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#technicalFAQ3"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              I'm getting error codes
+            </button>
+          </h2>
+          <div
+            id="technicalFAQ3"
+            class="accordion-collapse collapse"
+            data-bs-parent="#technicalFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>Common error codes and solutions:</p>
+              <div class="table-responsive">
+                <table class="table" style="color: var(--text-primary)">
+                  <thead>
+                    <tr>
+                      <th>Error Code</th>
+                      <th>Meaning</th>
+                      <th>Solution</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>1001</code></td>
+                      <td>Connection lost</td>
+                      <td>Check internet connection</td>
+                    </tr>
+                    <tr>
+                      <td><code>2003</code></td>
+                      <td>Video unavailable</td>
+                      <td>Try another title</td>
+                    </tr>
+                    <tr>
+                      <td><code>3005</code></td>
+                      <td>Account issue</td>
+                      <td>Log out and back in</td>
+                    </tr>
+                    <tr>
+                      <td><code>4002</code></td>
+                      <td>Region restricted</td>
+                      <td>Content not available in your area</td>
+                    </tr>
+                    <tr>
+                      <td><code>5001</code></td>
+                      <td>Server error</td>
+                      <td>Try again in a few minutes</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div
+          class="accordion-item"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#technicalFAQ4"
+              style="
+                background: var(--secondary-dark);
+                color: var(--text-primary);
+              "
+            >
+              How do I report a technical problem?
+            </button>
+          </h2>
+          <div
+            id="technicalFAQ4"
+            class="accordion-collapse collapse"
+            data-bs-parent="#technicalFAQs"
+          >
+            <div class="accordion-body text-secondary">
+              <p>To report a technical problem:</p>
+              <ol>
+                <li>
+                  Go to the
+                  <a href="{{ url_for('contact') }}">Contact Us</a> page
+                </li>
+                <li>Select "Technical Support" as the subject</li>
+                <li>
+                  Include as much detail as possible:
+                  <ul>
+                    <li>What you were trying to do</li>
+                    <li>What happened (error messages, screenshots)</li>
+                    <li>Device and browser information</li>
+                    <li>Steps to reproduce the issue</li>
+                  </ul>
+                </li>
+                <li>Submit the form</li>
+              </ol>
+              <p>
+                Our technical team will investigate and get back to you as soon
+                as possible.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Still Need Help -->
+  <div
+    class="card mt-5"
+    style="background: var(--secondary-dark); border-color: var(--border-color)"
+  >
+    <div class="card-body text-center">
+      <h5 class="card-title mb-3">
+        <i class="fas fa-headset me-2"></i>Didn't find your answer?
+      </h5>
+      <p class="text-secondary mb-4">
+        Our support team is ready to help with any other questions.
+      </p>
+      <div class="d-flex flex-wrap gap-3 justify-content-center">
+        <a href="{{ url_for('contact') }}" class="btn btn-primary">
+          <i class="fas fa-envelope me-2"></i>Contact Support
+        </a>
+        <a href="{{ url_for('help') }}" class="btn btn-outline-primary">
+          <i class="fas fa-book me-2"></i>Visit Help Center
+        </a>
+        <a href="tel:+15551234567" class="btn btn-outline-primary">
+          <i class="fas fa-phone me-2"></i>Call Us Now
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .faq-content h2 {
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .faq-content h2:hover {
+    color: var(--primary-blue);
+  }
+
+  .accordion-button:not(.collapsed) {
+    color: var(--primary-blue);
+    background-color: var(--secondary-dark);
+    box-shadow: inset 0 -1px 0 var(--border-color);
+  }
+
+  .accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+    border-color: var(--primary-blue);
+  }
+
+  .accordion-item {
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .accordion-button {
+    font-weight: 500;
+    padding: 1rem 1.25rem;
+  }
+
+  .accordion-body {
+    border-top: 1px solid var(--border-color);
+    padding: 1.25rem;
+  }
+
+  .table {
+    background-color: var(--secondary-dark);
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .table th,
+  .table td {
+    border-color: var(--border-color);
+    padding: 0.75rem 1rem;
+  }
+
+  .table thead th {
+    background-color: var(--tertiary-dark);
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
+  }
+
+  .card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-weight: 600;
+  }
+
+  .badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+  }
+
+  .btn-primary {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--primary-dark);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--primary-blue-hover);
+    border-color: var(--primary-blue-hover);
+  }
+
+  .btn-outline-primary {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    padding: 0.75rem 1.5rem;
+  }
+
+  .btn-outline-primary:hover {
+    background-color: var(--primary-blue);
+    color: var(--primary-dark);
+  }
+
+  .alert {
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    padding: 1rem;
+  }
+
+  .alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: var(--info);
+  }
+
+  .alert-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+  }
+
+  code {
+    background-color: var(--tertiary-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: var(--primary-blue);
+    font-size: 0.875em;
+  }
+
+  #faqSearch {
+    padding: 0.75rem 1rem;
+  }
+
+  .input-group-text {
+    background-color: var(--secondary-dark);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+  }
+
+  .form-control {
+    background-color: var(--secondary-dark);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .form-control:focus {
+    background-color: var(--secondary-dark);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .faq-content h2 {
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+
+  .accordion-button:not(.collapsed) {
+    color: var(--primary-blue);
+    background-color: var(--secondary-dark);
+  }
+
+  .accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .table {
+    background-color: var(--secondary-dark);
+  }
+
+  .table th,
+  .table td {
+    border-color: var(--border-color);
+  }
+</style>
+
+<script>
+  function searchFAQs() {
+    const query = document.getElementById("faqSearch").value.toLowerCase();
+    if (!query.trim()) {
+      // Show all if empty
+      document.querySelectorAll(".accordion-item").forEach((item) => {
+        item.style.display = "block";
+        item.querySelector(".accordion-button").classList.remove("collapsed");
+        item.querySelector(".accordion-collapse").classList.remove("show");
+      });
+      return;
+    }
+
+    let found = false;
+    document.querySelectorAll(".accordion-item").forEach((item) => {
+      const question = item
+        .querySelector(".accordion-button")
+        .textContent.toLowerCase();
+      const answer = item
+        .querySelector(".accordion-body")
+        .textContent.toLowerCase();
+
+      if (question.includes(query) || answer.includes(query)) {
+        item.style.display = "block";
+        // Open the accordion
+        const button = item.querySelector(".accordion-button");
+        const collapse = item.querySelector(".accordion-collapse");
+        if (button.classList.contains("collapsed")) {
+          button.classList.remove("collapsed");
+          collapse.classList.add("show");
+        }
+        found = true;
+      } else {
+        item.style.display = "none";
+      }
+    });
+
+    if (!found) {
+      alert("No FAQs found for: " + query);
+    }
+  }
+
+  function scrollToCategory(categoryId) {
+    const element = document.getElementById(categoryId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }
+
+  // Open all accordions in a category when clicking the category header
+  document.querySelectorAll(".faq-content h2").forEach((header) => {
+    header.style.cursor = "pointer";
+    header.addEventListener("click", function () {
+      const categoryId = this.parentElement.id;
+      const accordion = document.getElementById(categoryId + "FAQs");
+      if (accordion) {
+        const buttons = accordion.querySelectorAll(".accordion-button");
+        buttons.forEach((button) => {
+          if (button.classList.contains("collapsed")) {
+            button.click();
+          }
+        });
+      }
+    });
+  });
+
+  // Search when pressing Enter
+  document
+    .getElementById("faqSearch")
+    .addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        searchFAQs();
+      }
+    });
+</script>
+{% endblock %}

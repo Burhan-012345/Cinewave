@@ -1,0 +1,811 @@
+{% extends "base.html" %} {% block title %}Contact Us - CineWave{% endblock %}
+{% block content %}
+<style>
+  #contactForm .form-control,
+  #contactForm .form-select {
+    background-color: var(--secondary-dark);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+  }
+
+  #contactForm .form-control:focus,
+  #contactForm .form-select:focus {
+    background-color: var(--secondary-dark);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .list-group-item-action:hover {
+    background-color: var(--secondary-dark);
+    border-radius: var(--radius);
+    padding-left: 1rem;
+  }
+
+  address {
+    font-style: normal;
+    line-height: 1.6;
+  }
+
+  .card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+  }
+
+  .btn-primary {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--primary-dark);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--primary-blue-hover);
+    border-color: var(--primary-blue-hover);
+  }
+
+  .btn-outline-primary {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    padding: 0.75rem 1.5rem;
+  }
+
+  .btn-outline-primary:hover {
+    background-color: var(--primary-blue);
+    color: var(--primary-dark);
+  }
+
+  .btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  #liveChatWidget .card {
+    animation: slideUp 0.3s ease-out;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .form-check-input:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+
+  .form-check-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .form-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .alert {
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+<div class="container mt-5 pt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Header -->
+      <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold mb-3" style="color: var(--text-primary)">
+          <i class="fas fa-headset me-2" style="color: var(--primary-blue)"></i>
+          Contact Us
+        </h1>
+        <p class="lead text-secondary">
+          We're here to help. Get in touch with our support team.
+        </p>
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+          <span class="badge bg-success">
+            <i class="fas fa-clock me-1"></i>24/7 Support
+          </span>
+          <span class="badge bg-info">
+            <i class="fas fa-comment-dots me-1"></i>Live Chat
+          </span>
+          <span class="badge bg-primary">
+            <i class="fas fa-phone me-1"></i>Phone Support
+          </span>
+        </div>
+      </div>
+
+      <!-- Contact Methods -->
+      <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+          <div
+            class="card h-100 text-center"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="mb-4">
+                <i
+                  class="fas fa-envelope fa-3x"
+                  style="color: var(--primary-blue)"
+                ></i>
+              </div>
+              <h5 class="card-title mb-3">Email Support</h5>
+              <p class="text-secondary mb-3">
+                Send us an email for non-urgent inquiries. We typically respond
+                within 2 hours.
+              </p>
+              <a
+                href="mailto:support@cinewave.com"
+                class="btn btn-outline-primary"
+              >
+                <i class="fas fa-paper-plane me-2"></i>support@cinewave.com
+              </a>
+              <div class="mt-3">
+                <small class="text-secondary">
+                  <i class="fas fa-check-circle me-1"></i>
+                  Response time: < 2 hours
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div
+            class="card h-100 text-center"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="mb-4">
+                <i
+                  class="fas fa-phone fa-3x"
+                  style="color: var(--primary-blue)"
+                ></i>
+              </div>
+              <h5 class="card-title mb-3">Phone Support</h5>
+              <p class="text-secondary mb-3">
+                Call us for immediate assistance during business hours.
+              </p>
+              <a href="tel:+15551234567" class="btn btn-outline-primary">
+                <i class="fas fa-phone me-2"></i>+1 (555) 123-4567
+              </a>
+              <div class="mt-3">
+                <small class="text-secondary">
+                  <i class="fas fa-clock me-1"></i>
+                  Mon-Fri, 9AM-6PM PST
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div
+            class="card h-100 text-center"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <div class="mb-4">
+                <i
+                  class="fas fa-comments fa-3x"
+                  style="color: var(--primary-blue)"
+                ></i>
+              </div>
+              <h5 class="card-title mb-3">Live Chat</h5>
+              <p class="text-secondary mb-3">
+                Chat with our support agents in real-time. Available 24/7.
+              </p>
+              <button class="btn btn-primary" onclick="openLiveChat()">
+                <i class="fas fa-comment me-2"></i>Start Live Chat
+              </button>
+              <div class="mt-3">
+                <small class="text-secondary">
+                  <i class="fas fa-bolt me-1"></i>
+                  Average wait: < 1 minute
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="row">
+        <div class="col-lg-8">
+          <div
+            class="card mb-4"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <h4 class="card-title mb-4">
+                <i class="fas fa-edit me-2"></i>Send us a Message
+              </h4>
+
+              <form id="contactForm" method="POST" action="/contact/submit">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Full Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="name"
+                      name="name"
+                      required
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label"
+                      >Email Address *</label
+                    >
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      name="email"
+                      required
+                      placeholder="Enter your email address"
+                    />
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="subject" class="form-label">Subject *</label>
+                  <select
+                    class="form-select"
+                    id="subject"
+                    name="subject"
+                    required
+                  >
+                    <option value="">Select a category</option>
+                    <option value="technical">Technical Support</option>
+                    <option value="billing">Billing & Payments</option>
+                    <option value="account">Account Issues</option>
+                    <option value="content">Content Questions</option>
+                    <option value="feedback">Feedback & Suggestions</option>
+                    <option value="business">Business Inquiries</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="message" class="form-label">Message *</label>
+                  <textarea
+                    class="form-control"
+                    id="message"
+                    name="message"
+                    rows="5"
+                    required
+                    placeholder="Please describe your issue or question in detail..."
+                  ></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label for="priority" class="form-label">Priority</label>
+                  <select class="form-select" id="priority" name="priority">
+                    <option value="low">Low - General inquiry</option>
+                    <option value="normal" selected>
+                      Normal - Need assistance
+                    </option>
+                    <option value="high">High - Urgent issue</option>
+                    <option value="critical">
+                      Critical - Service not working
+                    </option>
+                  </select>
+                </div>
+
+                <div class="mb-4">
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="consent"
+                      required
+                    />
+                    <label class="form-check-label" for="consent">
+                      I agree to the
+                      <a href="{{ url_for('privacy') }}">Privacy Policy</a> and
+                      consent to CineWave processing my personal data to respond
+                      to my inquiry.
+                    </label>
+                  </div>
+                </div>
+
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="col-lg-4">
+          <!-- Office Address -->
+          <div
+            class="card mb-4"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <h5 class="card-title mb-3">
+                <i class="fas fa-map-marker-alt me-2"></i>Our Office
+              </h5>
+              <address class="text-secondary">
+                <strong>CineWave Headquarters</strong><br />
+                123 Movie Street<br />
+                Hollywood, CA 90210<br />
+                United States
+              </address>
+              <div class="mt-3">
+                <a
+                  href="https://maps.google.com/?q=123+Movie+Street+Hollywood+CA+90210"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-primary"
+                >
+                  <i class="fas fa-directions me-1"></i>Get Directions
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Response Times -->
+          <div
+            class="card mb-4"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <h5 class="card-title mb-3">
+                <i class="fas fa-clock me-2"></i>Response Times
+              </h5>
+              <ul class="list-unstyled text-secondary">
+                <li class="mb-2">
+                  <i class="fas fa-bolt me-2 text-success"></i>
+                  <strong>Live Chat:</strong> < 1 minute
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-phone me-2 text-info"></i>
+                  <strong>Phone:</strong> < 5 minutes
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-envelope me-2 text-primary"></i>
+                  <strong>Email:</strong> < 2 hours
+                </li>
+                <li>
+                  <i class="fas fa-ticket-alt me-2 text-warning"></i>
+                  <strong>Contact Form:</strong> < 4 hours
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Common Issues -->
+          <div
+            class="card"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <div class="card-body">
+              <h5 class="card-title mb-3">
+                <i class="fas fa-lightbulb me-2"></i>Quick Solutions
+              </h5>
+              <div class="list-group list-group-flush">
+                <a
+                  href="{{ url_for('forgot_password') }}"
+                  class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                >
+                  <i class="fas fa-key me-2"></i>Reset Password
+                </a>
+                <a
+                  href="{{ url_for('help') }}#billing"
+                  class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                >
+                  <i class="fas fa-credit-card me-2"></i>Billing Issues
+                </a>
+                <a
+                  href="{{ url_for('help') }}#technical"
+                  class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                >
+                  <i class="fas fa-wifi me-2"></i>Playback Problems
+                </a>
+                <a
+                  href="{{ url_for('help') }}#account"
+                  class="list-group-item list-group-item-action border-0 px-0 py-2 text-primary small"
+                >
+                  <i class="fas fa-user-lock me-2"></i>Account Access
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Preview -->
+      <div class="mt-5">
+        <div class="text-center mb-4">
+          <h3 class="h4" style="color: var(--text-primary)">
+            <i class="fas fa-question-circle me-2"></i>Popular Questions
+          </h3>
+          <p class="text-secondary">Quick answers to common questions</p>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-user-plus me-2"></i>How do I create an
+                  account?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  Click "Register" in the top navigation, enter your details,
+                  verify with OTP, and you're ready to watch!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-credit-card me-2"></i>What payment methods do
+                  you accept?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  We accept Visa, MasterCard, American Express, PayPal, Google
+                  Pay, and Apple Pay.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-tv me-2"></i>Can I watch on multiple devices?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  Yes! You can stream on up to 4 devices simultaneously with one
+                  account.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-download me-2"></i>Is offline viewing
+                  available?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  Yes, with a Premium subscription you can download movies to
+                  watch offline.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <a href="{{ url_for('help') }}" class="btn btn-outline-primary">
+            <i class="fas fa-book me-2"></i>View All Help Articles
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Live Chat Widget -->
+<div id="liveChatWidget" class="d-none">
+  <div
+    class="card position-fixed bottom-0 end-0 m-3"
+    style="
+      width: 350px;
+      height: 500px;
+      background: var(--card-bg);
+      border-color: var(--primary-blue);
+      z-index: 9999;
+    "
+  >
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div>
+        <i class="fas fa-comments me-2"></i>
+        <strong>Live Chat Support</strong>
+      </div>
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        onclick="closeLiveChat()"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="card-body" style="overflow-y: auto; height: 400px">
+      <div class="text-center mb-4">
+        <i
+          class="fas fa-headset fa-2x mb-3"
+          style="color: var(--primary-blue)"
+        ></i>
+        <h6>Welcome to CineWave Support!</h6>
+        <p class="text-secondary small">
+          Our agents are available 24/7 to help you.
+        </p>
+      </div>
+
+      <div id="chatMessages" class="mb-3">
+        <!-- Messages will appear here -->
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          id="chatInput"
+          placeholder="Type your message..."
+          onkeypress="handleChatKeyPress(event)"
+        />
+        <button class="btn btn-primary" onclick="sendChatMessage()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #contactForm .form-control,
+  #contactForm .form-select {
+    background-color: var(--secondary-dark);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+  }
+
+  #contactForm .form-control:focus,
+  #contactForm .form-select:focus {
+    background-color: var(--secondary-dark);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .list-group-item-action:hover {
+    background-color: var(--secondary-dark);
+    border-radius: var(--radius);
+  }
+
+  address {
+    font-style: normal;
+  }
+</style>
+
+<script>
+  // Contact form handling
+  document
+    .getElementById("contactForm")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const formData = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        subject: document.getElementById("subject").value,
+        message: document.getElementById("message").value,
+        priority: document.getElementById("priority").value,
+      };
+
+      // Show loading state
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML =
+        '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+      submitBtn.disabled = true;
+
+      // Simulate form submission
+      setTimeout(() => {
+        // Show success message
+        showAlert(
+          "success",
+          "Message sent successfully! We'll get back to you soon."
+        );
+
+        // Reset form
+        this.reset();
+
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }, 1500);
+    });
+
+  // Live chat functionality
+  function openLiveChat() {
+    document.getElementById("liveChatWidget").classList.remove("d-none");
+    document.getElementById("chatMessages").innerHTML = `
+        <div class="alert alert-info small">
+            <i class="fas fa-info-circle me-2"></i>
+            Connecting you with a support agent...
+        </div>
+    `;
+
+    // Simulate connection
+    setTimeout(() => {
+      addChatMessage(
+        "agent",
+        "Hi! Welcome to CineWave Support. How can I help you today?"
+      );
+    }, 1000);
+  }
+
+  function closeLiveChat() {
+    document.getElementById("liveChatWidget").classList.add("d-none");
+    document.getElementById("chatInput").value = "";
+    document.getElementById("chatMessages").innerHTML = "";
+  }
+
+  function sendChatMessage() {
+    const input = document.getElementById("chatInput");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Add user message
+    addChatMessage("user", message);
+    input.value = "";
+
+    // Simulate agent response
+    setTimeout(() => {
+      const responses = [
+        "I understand. Let me help you with that.",
+        "Thanks for sharing that information.",
+        "I'll look into that for you right away.",
+        "Can you provide more details about the issue?",
+        "I have a solution for that problem.",
+      ];
+      const randomResponse =
+        responses[Math.floor(Math.random() * responses.length)];
+      addChatMessage("agent", randomResponse);
+    }, 1000 + Math.random() * 2000);
+  }
+
+  function handleChatKeyPress(e) {
+    if (e.key === "Enter") {
+      sendChatMessage();
+    }
+  }
+
+  function addChatMessage(sender, message) {
+    const chatMessages = document.getElementById("chatMessages");
+    const messageClass = sender === "user" ? "text-end" : "text-start";
+    const bgClass = sender === "user" ? "bg-primary" : "bg-secondary";
+
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `mb-2 ${messageClass}`;
+    messageDiv.innerHTML = `
+        <div class="d-inline-block p-2 rounded ${bgClass}" 
+             style="max-width: 80%; color: ${
+               sender === "user" ? "var(--primary-dark)" : "var(--text-primary)"
+             };">
+            ${message}
+        </div>
+    `;
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function showAlert(type, message) {
+    const alertDiv = document.createElement("div");
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alertDiv.style.zIndex = "9999";
+    alertDiv.innerHTML = `
+        <i class="fas fa-${
+          type === "success" ? "check-circle" : "exclamation-circle"
+        } me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      if (alertDiv.parentNode) {
+        alertDiv.remove();
+      }
+    }, 5000);
+  }
+
+  // Pre-fill form if URL has subject parameter
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const subject = urlParams.get("subject");
+    if (subject) {
+      document.getElementById("subject").value = subject.toLowerCase();
+    }
+  });
+</script>
+{% endblock %}

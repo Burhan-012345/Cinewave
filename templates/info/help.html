@@ -1,0 +1,1054 @@
+{% extends "base.html" %} {% block title %}Help Center - CineWave{% endblock %}
+{% block content %}
+
+<style>
+  .help-section {
+    transition: opacity 0.3s ease;
+  }
+
+  .nav-link {
+    color: var(--text-secondary);
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--primary-blue);
+    background-color: var(--secondary-dark);
+    border-left-color: var(--primary-blue);
+  }
+
+  .accordion-button:not(.collapsed) {
+    color: var(--primary-blue);
+    background-color: var(--secondary-dark);
+    box-shadow: inset 0 -1px 0 var(--border-color);
+  }
+
+  .accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+    border-color: var(--primary-blue);
+  }
+
+  .accordion-item {
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .accordion-button {
+    font-weight: 500;
+  }
+
+  .accordion-body {
+    border-top: 1px solid var(--border-color);
+  }
+
+  .card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .input-group-text {
+    background-color: var(--secondary-dark);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+  }
+
+  .form-control {
+    background-color: var(--secondary-dark);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .form-control:focus {
+    background-color: var(--secondary-dark);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .badge {
+    font-weight: 500;
+  }
+
+  .alert {
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+  }
+
+  .alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: var(--info);
+  }
+
+  .alert-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+  }
+
+  #helpSearch {
+    padding: 0.75rem 1rem;
+  }
+
+  .btn-primary {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--primary-dark);
+    font-weight: 500;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--primary-blue-hover);
+    border-color: var(--primary-blue-hover);
+  }
+
+  .btn-outline-primary {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+
+  .btn-outline-primary:hover {
+    background-color: var(--primary-blue);
+    color: var(--primary-dark);
+  }
+</style>
+<div class="container mt-5 pt-5">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold mb-3" style="color: var(--text-primary)">
+      <i
+        class="fas fa-question-circle me-2"
+        style="color: var(--primary-blue)"
+      ></i>
+      Help Center
+    </h1>
+    <p class="lead text-secondary">
+      Get help with CineWave. Find answers, guides, and support.
+    </p>
+
+    <!-- Search Bar -->
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div
+          class="card"
+          style="background: var(--card-bg); border-color: var(--border-color)"
+        >
+          <div class="card-body">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                id="helpSearch"
+                placeholder="Search for help articles, guides, or FAQs..."
+              />
+              <button class="btn btn-primary" onclick="searchHelp()">
+                Search
+              </button>
+            </div>
+            <div class="mt-2 text-start">
+              <small class="text-secondary">
+                <i class="fas fa-lightbulb me-1"></i>
+                Try searching for: "password reset", "payment issues", "video
+                playback"
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-5">
+    <div class="col-md-3 col-6 mb-3">
+      <a href="{{ url_for('contact') }}" class="text-decoration-none">
+        <div
+          class="card text-center h-100"
+          style="
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            transition: transform 0.2s;
+          "
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i
+                class="fas fa-headset fa-2x"
+                style="color: var(--primary-blue)"
+              ></i>
+            </div>
+            <h6 class="card-title mb-0">Contact Support</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <a
+        href="#faq"
+        class="text-decoration-none"
+        onclick="scrollToSection('faq')"
+      >
+        <div
+          class="card text-center h-100"
+          style="
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            transition: transform 0.2s;
+          "
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i
+                class="fas fa-list-alt fa-2x"
+                style="color: var(--primary-blue)"
+              ></i>
+            </div>
+            <h6 class="card-title mb-0">FAQs</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <a href="{{ url_for('forgot_password') }}" class="text-decoration-none">
+        <div
+          class="card text-center h-100"
+          style="
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            transition: transform 0.2s;
+          "
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i
+                class="fas fa-key fa-2x"
+                style="color: var(--primary-blue)"
+              ></i>
+            </div>
+            <h6 class="card-title mb-0">Password Reset</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <a href="{{ url_for('cookies') }}" class="text-decoration-none">
+        <div
+          class="card text-center h-100"
+          style="
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            transition: transform 0.2s;
+          "
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <i
+                class="fas fa-cookie fa-2x"
+                style="color: var(--primary-blue)"
+              ></i>
+            </div>
+            <h6 class="card-title mb-0">Cookie Settings</h6>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="row">
+    <!-- Categories -->
+    <div class="col-lg-4 mb-4">
+      <div
+        class="card sticky-top"
+        style="
+          top: 100px;
+          background: var(--card-bg);
+          border-color: var(--border-color);
+        "
+      >
+        <div class="card-body">
+          <h5 class="card-title mb-4">
+            <i class="fas fa-folder-open me-2"></i>Help Categories
+          </h5>
+          <nav class="nav flex-column">
+            <a
+              class="nav-link py-2 active"
+              href="#account"
+              onclick="showSection('account')"
+            >
+              <i class="fas fa-user-circle me-2"></i>Account & Profile
+            </a>
+            <a
+              class="nav-link py-2"
+              href="#billing"
+              onclick="showSection('billing')"
+            >
+              <i class="fas fa-credit-card me-2"></i>Billing & Payments
+            </a>
+            <a
+              class="nav-link py-2"
+              href="#watching"
+              onclick="showSection('watching')"
+            >
+              <i class="fas fa-tv me-2"></i>Watching Content
+            </a>
+            <a
+              class="nav-link py-2"
+              href="#technical"
+              onclick="showSection('technical')"
+            >
+              <i class="fas fa-cogs me-2"></i>Technical Issues
+            </a>
+            <a
+              class="nav-link py-2"
+              href="#devices"
+              onclick="showSection('devices')"
+            >
+              <i class="fas fa-mobile-alt me-2"></i>Devices & Apps
+            </a>
+            <a
+              class="nav-link py-2"
+              href="#privacy"
+              onclick="showSection('privacy')"
+            >
+              <i class="fas fa-shield-alt me-2"></i>Privacy & Security
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Articles -->
+    <div class="col-lg-8">
+      <!-- Account & Profile -->
+      <div class="help-section" id="accountSection">
+        <h2 class="h3 mb-4" style="color: var(--text-primary)">
+          <i class="fas fa-user-circle me-2"></i>Account & Profile
+        </h2>
+
+        <div class="accordion" id="accountAccordion">
+          <!-- Question 1 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#account1"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                How do I create an account?
+              </button>
+            </h2>
+            <div
+              id="account1"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accountAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>To create a CineWave account:</p>
+                <ol>
+                  <li>Click "Register" in the top navigation</li>
+                  <li>Enter your name, email, and password</li>
+                  <li>Check your email for the verification OTP</li>
+                  <li>Enter the OTP on the registration page</li>
+                  <li>Complete your profile setup</li>
+                </ol>
+                <p>
+                  You can also sign up using Google OAuth for faster
+                  registration.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#account2"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                How do I reset my password?
+              </button>
+            </h2>
+            <div
+              id="account2"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accountAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>To reset your password:</p>
+                <ol>
+                  <li>
+                    Go to the
+                    <a href="{{ url_for('forgot_password') }}"
+                      >Forgot Password</a
+                    >
+                    page
+                  </li>
+                  <li>Enter your registered email address</li>
+                  <li>Check your email for a reset link</li>
+                  <li>Click the link (valid for 10 minutes)</li>
+                  <li>
+                    Create a new password following our security requirements
+                  </li>
+                </ol>
+                <div class="alert alert-info small mt-2">
+                  <i class="fas fa-info-circle me-2"></i>
+                  Password requirements: 8+ characters, 1 uppercase, 1 number, 1
+                  special character, no spaces
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#account3"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                How do I manage multiple profiles?
+              </button>
+            </h2>
+            <div
+              id="account3"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accountAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>
+                  You can create and manage multiple profiles for different
+                  family members:
+                </p>
+                <ol>
+                  <li>
+                    Go to your
+                    <a href="{{ url_for('profiles') }}">Profiles</a> page
+                  </li>
+                  <li>Click "Create Profile"</li>
+                  <li>Enter a name and choose if it's a kids profile</li>
+                  <li>Click "Create"</li>
+                  <li>Switch between profiles from the dropdown menu</li>
+                </ol>
+                <p>
+                  Each profile has its own watch history, recommendations, and
+                  continue watching list.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing & Payments -->
+      <div class="help-section d-none" id="billingSection">
+        <h2 class="h3 mb-4" style="color: var(--text-primary)">
+          <i class="fas fa-credit-card me-2"></i>Billing & Payments
+        </h2>
+
+        <div class="accordion" id="billingAccordion">
+          <!-- Question 1 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#billing1"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                What payment methods do you accept?
+              </button>
+            </h2>
+            <div
+              id="billing1"
+              class="accordion-collapse collapse"
+              data-bs-parent="#billingAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>We accept the following payment methods:</p>
+                <ul>
+                  <li>
+                    Credit/Debit Cards (Visa, MasterCard, American Express)
+                  </li>
+                  <li>PayPal</li>
+                  <li>Google Pay</li>
+                  <li>Apple Pay</li>
+                  <li>Bank transfers (for annual subscriptions)</li>
+                </ul>
+                <p>
+                  All payments are processed securely through Stripe and
+                  encrypted for your protection.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#billing2"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                How do I cancel my subscription?
+              </button>
+            </h2>
+            <div
+              id="billing2"
+              class="accordion-collapse collapse"
+              data-bs-parent="#billingAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>To cancel your subscription:</p>
+                <ol>
+                  <li>Go to your Account Settings</li>
+                  <li>Click "Subscription" in the sidebar</li>
+                  <li>Click "Cancel Subscription"</li>
+                  <li>Select your reason for cancellation</li>
+                  <li>Confirm the cancellation</li>
+                </ol>
+                <div class="alert alert-warning small mt-2">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  Your subscription will remain active until the end of your
+                  current billing period. No refunds are provided for partial
+                  months.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#billing3"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                Can I get a refund?
+              </button>
+            </h2>
+            <div
+              id="billing3"
+              class="accordion-collapse collapse"
+              data-bs-parent="#billingAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>Our refund policy is as follows:</p>
+                <ul>
+                  <li>
+                    <strong>Monthly subscriptions:</strong> No refunds for
+                    partial months
+                  </li>
+                  <li>
+                    <strong>Annual subscriptions:</strong> Pro-rated refunds
+                    within 30 days of purchase
+                  </li>
+                  <li>
+                    <strong>Technical issues:</strong> Case-by-case evaluation
+                    for unresolved technical problems
+                  </li>
+                </ul>
+                <p>
+                  To request a refund, please
+                  <a href="{{ url_for('contact') }}?subject=Refund%20Request"
+                    >contact our support team</a
+                  >
+                  with your account details and reason for the request.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watching Content -->
+      <div class="help-section d-none" id="watchingSection">
+        <h2 class="h3 mb-4" style="color: var(--text-primary)">
+          <i class="fas fa-tv me-2"></i>Watching Content
+        </h2>
+
+        <div class="accordion" id="watchingAccordion">
+          <!-- Question 1 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#watching1"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                How does "Continue Watching" work?
+              </button>
+            </h2>
+            <div
+              id="watching1"
+              class="accordion-collapse collapse"
+              data-bs-parent="#watchingAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>The Continue Watching feature:</p>
+                <ul>
+                  <li>Automatically saves your progress in movies and shows</li>
+                  <li>Works across all your devices</li>
+                  <li>Is profile-specific (each profile has its own list)</li>
+                  <li>
+                    Saves your exact timestamp when you pause or stop watching
+                  </li>
+                  <li>Appears on your dashboard and Continue Watching page</li>
+                </ul>
+                <p>
+                  To resume watching, simply click on the item from your
+                  <a href="{{ url_for('continue_watching') }}"
+                    >Continue Watching</a
+                  >
+                  page or dashboard.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#watching2"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                How do I add movies to my watchlist?
+              </button>
+            </h2>
+            <div
+              id="watching2"
+              class="accordion-collapse collapse"
+              data-bs-parent="#watchingAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>To add movies to your watchlist:</p>
+                <ol>
+                  <li>Find a movie you want to watch later</li>
+                  <li>Go to the movie's detail page</li>
+                  <li>Click the "Add to Watchlist" button</li>
+                  <li>
+                    The movie will appear in your Watchlist on your dashboard
+                  </li>
+                </ol>
+                <p>
+                  You can manage your watchlist from your dashboard by removing
+                  items you've watched or no longer want to save.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div
+            class="accordion-item"
+            style="
+              background: var(--card-bg);
+              border-color: var(--border-color);
+            "
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#watching3"
+                style="
+                  background: var(--secondary-dark);
+                  color: var(--text-primary);
+                "
+              >
+                Why is a movie/show not available in my region?
+              </button>
+            </h2>
+            <div
+              id="watching3"
+              class="accordion-collapse collapse"
+              data-bs-parent="#watchingAccordion"
+            >
+              <div class="accordion-body text-secondary">
+                <p>Content availability varies by region due to:</p>
+                <ul>
+                  <li>Licensing agreements with content providers</li>
+                  <li>Regional distribution rights</li>
+                  <li>Local content regulations</li>
+                  <li>Release schedules</li>
+                </ul>
+                <p>
+                  We're constantly working to expand our content library
+                  globally. You can:
+                </p>
+                <ul>
+                  <li>Check back regularly for updates</li>
+                  <li>Use our search and filter to find available content</li>
+                  <li>Browse our recommendations for available titles</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="mt-5 pt-5" id="faq">
+        <h2 class="h3 mb-4" style="color: var(--text-primary)">
+          <i class="fas fa-list-alt me-2"></i>Frequently Asked Questions
+        </h2>
+
+        <div class="row">
+          <div class="col-md-6 mb-4">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-wifi me-2"></i>What internet speed do I need?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  Minimum 5 Mbps for SD, 25 Mbps for 4K. We recommend using a
+                  wired connection for best performance.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-download me-2"></i>Can I download movies to
+                  watch offline?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  Yes, with a Premium subscription. Download content from the
+                  movie detail page.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-users me-2"></i>How many people can use one
+                  account?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  Up to 4 simultaneous streams. You can create multiple profiles
+                  for family members.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-language me-2"></i>What languages are
+                  supported?
+                </h6>
+                <p class="text-secondary small mb-0">
+                  Interface in 12 languages. Content with multiple subtitle and
+                  audio track options.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Still Need Help -->
+      <div
+        class="card mt-5"
+        style="
+          background: var(--secondary-dark);
+          border-color: var(--border-color);
+        "
+      >
+        <div class="card-body text-center">
+          <h5 class="card-title mb-3">
+            <i class="fas fa-headset me-2"></i>Still Need Help?
+          </h5>
+          <p class="text-secondary mb-4">
+            Can't find what you're looking for? Our support team is here to
+            help.
+          </p>
+          <div class="d-flex flex-wrap gap-3 justify-content-center">
+            <a href="{{ url_for('contact') }}" class="btn btn-primary">
+              <i class="fas fa-envelope me-2"></i>Contact Support
+            </a>
+            <a
+              href="mailto:support@cinewave.com"
+              class="btn btn-outline-primary"
+            >
+              <i class="fas fa-at me-2"></i>Email Us
+            </a>
+            <a href="tel:+15551234567" class="btn btn-outline-primary">
+              <i class="fas fa-phone me-2"></i>Call Support
+            </a>
+          </div>
+          <div class="mt-4">
+            <p class="text-secondary small mb-2">
+              <i class="fas fa-clock me-2"></i>Support Hours: 24/7 via email,
+              Mon-Fri 9AM-6PM PST via phone
+            </p>
+            <p class="text-secondary small mb-0">
+              Average response time: < 2 hours for email, < 5 minutes for chat
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .help-section {
+    transition: opacity 0.3s ease;
+  }
+
+  .nav-link {
+    color: var(--text-secondary);
+    border-left: 3px solid transparent;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--primary-blue);
+    background-color: var(--secondary-dark);
+    border-left-color: var(--primary-blue);
+  }
+
+  .accordion-button:not(.collapsed) {
+    color: var(--primary-blue);
+    background-color: var(--secondary-dark);
+  }
+
+  .accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+</style>
+
+<script>
+  // Show/hide help sections
+  function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll(".help-section").forEach((section) => {
+      section.classList.add("d-none");
+    });
+
+    // Show selected section
+    document.getElementById(sectionId + "Section").classList.remove("d-none");
+
+    // Update active nav link
+    document.querySelectorAll(".nav-link").forEach((link) => {
+      link.classList.remove("active");
+      if (link.getAttribute("href") === "#" + sectionId) {
+        link.classList.add("active");
+      }
+    });
+
+    // Scroll to section
+    setTimeout(() => {
+      document.getElementById(sectionId + "Section").scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
+  }
+
+  function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }
+
+  function searchHelp() {
+    const query = document.getElementById("helpSearch").value.toLowerCase();
+    if (!query.trim()) return;
+
+    // Show all sections and search within them
+    let found = false;
+    document.querySelectorAll(".accordion-item").forEach((item) => {
+      const question = item
+        .querySelector(".accordion-button")
+        .textContent.toLowerCase();
+      const answer = item
+        .querySelector(".accordion-body")
+        .textContent.toLowerCase();
+
+      if (question.includes(query) || answer.includes(query)) {
+        item.style.display = "block";
+        // Open the accordion
+        const collapseId = item.querySelector(".accordion-collapse").id;
+        new bootstrap.Collapse(document.getElementById(collapseId), {
+          toggle: true,
+        });
+        found = true;
+      } else {
+        item.style.display = "none";
+      }
+    });
+
+    if (!found) {
+      alert("No results found for: " + query);
+    }
+  }
+
+  // Initialize first section
+  document.addEventListener("DOMContentLoaded", function () {
+    showSection("account");
+
+    // Make all cards hoverable
+    document.querySelectorAll(".card").forEach((card) => {
+      card.style.transition = "transform 0.2s, box-shadow 0.2s";
+      card.addEventListener("mouseenter", function () {
+        this.style.transform = "translateY(-5px)";
+      });
+      card.addEventListener("mouseleave", function () {
+        this.style.transform = "translateY(0)";
+      });
+    });
+  });
+</script>
+{% endblock %}
