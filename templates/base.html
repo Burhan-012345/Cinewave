@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
+    <meta
+      name="description"
+      content="CineWave - Modern Movie Streaming Platform"
+    />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0a192f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link
+      rel="manifest"
+      href="{{ url_for('static', filename='manifest.json') }}"
+    />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='favicon.ico') }}"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="{{ url_for('static', filename='apple-touch-icon.png') }}"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+
+    <title>CineWave - {% block title %}{% endblock %}</title>
+
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark fixed-top"
+      style="
+        background-color: rgba(10, 25, 47, 0.95);
+        backdrop-filter: blur(10px);
+      "
+    >
+      <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+          <i class="fas fa-film me-2" style="color: var(--primary-blue)"></i>
+          <span style="font-weight: 700; letter-spacing: 1px">CineWave</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a
+                class="nav-link {{ 'active' if request.endpoint == 'home' or request.endpoint == 'movies_index' }}"
+                href="{{ url_for('home') }}"
+              >
+                <i class="fas fa-home me-1"></i> Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {{ 'active' if request.endpoint == 'search' }}"
+                href="{{ url_for('search') }}"
+              >
+                <i class="fas fa-search me-1"></i> Search
+              </a>
+            </li>
+            {% if current_user.is_authenticated %}
+            <li class="nav-item">
+              <a
+                class="nav-link {{ 'active' if request.endpoint == 'continue_watching' }}"
+                href="{{ url_for('continue_watching') }}"
+              >
+                <i class="fas fa-play-circle me-1"></i> Continue Watching
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {{ 'active' if request.endpoint == 'dashboard' }}"
+                href="{{ url_for('dashboard') }}"
+              >
+                <i class="fas fa-tv me-1"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {{ 'active' if request.endpoint == 'recommendations' }}"
+                href="{{ url_for('recommendations') }}"
+              >
+                <i class="fas fa-star me-1"></i> Recommended
+              </a>
+            </li>
+            {% endif %} {% if current_user.is_admin %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin_analytics') }}">
+                <i class="fas fa-chart-line me-2"></i>Analytics
+              </a>
+            </li>
+            {% endif %} {% if current_user.is_admin %}
+            <li class="nav-item">
+              <a
+                class="nav-link {{ 'active' if request.endpoint == 'admin_movies' }}"
+                href="{{ url_for('admin_movies') }}"
+              >
+                <i class="fas fa-film me-2"></i>Manage Movies
+              </a>
+            </li>
+            {% endif %} {% if current_user.is_admin %}
+            <li class="nav-item">
+              <a class="nav-link" href="/admin" target="_blank">
+                <i class="fas fa-cog me-1"></i> Admin Panel
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+
+          <ul class="navbar-nav align-items-center">
+            <!-- Search Bar (Desktop) -->
+            <li class="nav-item d-none d-lg-block me-3">
+              <form
+                class="d-flex"
+                action="{{ url_for('search') }}"
+                method="GET"
+              >
+                <div class="input-group" style="width: 300px">
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    placeholder="Search movies..."
+                    name="q"
+                    value="{{ request.args.get('q', '') }}"
+                  />
+                  <button class="btn btn-sm btn-outline-primary" type="submit">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </form>
+            </li>
+
+            {% if current_user.is_authenticated %}
+            <!-- Notifications -->
+            <li class="nav-item dropdown me-2">
+              <a
+                class="nav-link position-relative"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                id="notificationDropdown"
+              >
+                <i class="fas fa-bell"></i>
+                <span
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  id="notificationCount"
+                  style="font-size: 0.6rem; display: none"
+                >
+                  0
+                </span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" style="width: 350px">
+                <li class="dropdown-header">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Notifications</span>
+                    <button
+                      class="btn btn-sm btn-link text-decoration-none"
+                      onclick="markAllAsRead()"
+                    >
+                      Mark all as read
+                    </button>
+                  </div>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <div
+                  id="notificationList"
+                  style="max-height: 300px; overflow-y: auto"
+                >
+                  <li class="px-3 py-2 text-center text-secondary">
+                    <i class="fas fa-bell-slash fa-lg mb-2"></i>
+                    <p class="mb-0 small">No notifications</p>
+                  </li>
+                </div>
+                <li><hr class="dropdown-divider" /></li>
+                <li class="text-center">
+                  <a href="#" class="dropdown-item small"
+                    >View all notifications</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <!-- User Menu -->
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle d-flex align-items-center"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <div
+                  class="rounded-circle d-flex align-items-center justify-content-center"
+                  style="
+                    width: 32px;
+                    height: 32px;
+                    background: var(--primary-blue);
+                    color: var(--primary-dark);
+                  "
+                >
+                  {{ current_user.name[0]|upper }}
+                </div>
+                <span class="ms-2 d-none d-md-inline"
+                  >{{ current_user.name }}</span
+                >
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tv me-2"></i>Dashboard
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('profiles') }}">
+                    <i class="fas fa-users me-2"></i>Profiles
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('continue_watching') }}"
+                  >
+                    <i class="fas fa-play-circle me-2"></i>Continue Watching
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" id="themeToggleDropdown">
+                    <i class="fas fa-moon me-2"></i>Toggle Theme
+                  </a>
+                </li>
+                <li>
+                  <button
+                    class="dropdown-item"
+                    id="installButton"
+                    style="display: none"
+                  >
+                    <i class="fas fa-download me-2"></i>Install App
+                  </button>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <!-- In your base.html or navigation template -->
+                  {% if current_user.is_authenticated %}
+                  <a href="{{ url_for('logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                  </a>
+                  {% endif %}
+                </li>
+              </ul>
+            </li>
+
+            <!-- Theme Toggle Button (Mobile) -->
+            <li class="nav-item d-lg-none ms-2">
+              <button
+                class="btn btn-outline-primary btn-sm"
+                id="themeToggleMobile"
+                title="Switch Theme"
+              >
+                <i class="fas fa-moon"></i>
+              </button>
+            </li>
+
+            {% else %}
+            <!-- Auth Buttons -->
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">
+                <i class="fas fa-sign-in-alt me-1"></i> Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-primary ms-2" href="{{ url_for('register') }}">
+                <i class="fas fa-user-plus me-1"></i> Register
+              </a>
+            </li>
+
+            <!-- Theme Toggle Button (Logged out) -->
+            <li class="nav-item ms-2">
+              <button
+                class="btn btn-outline-primary btn-sm"
+                id="themeToggleGuest"
+                title="Switch Theme"
+              >
+                <i class="fas fa-moon"></i>
+              </button>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile Search Bar -->
+    <div class="d-lg-none container mt-3 pt-5">
+      <form class="mb-3" action="{{ url_for('search') }}" method="GET">
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search movies..."
+            name="q"
+            value="{{ request.args.get('q', '') }}"
+          />
+          <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3 pt-5">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show"
+        role="alert"
+      >
+        <div class="d-flex align-items-center">
+          {% if category == 'success' %}
+          <i class="fas fa-check-circle me-2"></i>
+          {% elif category == 'danger' %}
+          <i class="fas fa-exclamation-circle me-2"></i>
+          {% elif category == 'warning' %}
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          {% elif category == 'info' %}
+          <i class="fas fa-info-circle me-2"></i>
+          {% endif %}
+          <div>{{ message }}</div>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="min-vh-100">{% block content %}{% endblock %}</main>
+
+    <!-- Footer -->
+    <footer class="mt-auto">
+      <div class="container py-5">
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <div class="d-flex align-items-center mb-3">
+              <i
+                class="fas fa-film fa-2x me-3"
+                style="color: var(--primary-blue)"
+              ></i>
+              <h4 class="mb-0" style="color: var(--primary-blue)">CineWave</h4>
+            </div>
+            <p class="text-secondary">
+              Experience the future of movie streaming with personalized
+              recommendations, multi-profile support, and an intuitive
+              interface.
+            </p>
+            <div class="d-flex gap-3">
+              <a href="#" class="text-secondary" title="Twitter">
+                <i class="fab fa-twitter fa-lg"></i>
+              </a>
+              <a href="#" class="text-secondary" title="Facebook">
+                <i class="fab fa-facebook fa-lg"></i>
+              </a>
+              <a href="#" class="text-secondary" title="Instagram">
+                <i class="fab fa-instagram fa-lg"></i>
+              </a>
+              <a href="#" class="text-secondary" title="GitHub">
+                <i class="fab fa-github fa-lg"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-4 mb-4">
+            <h6 class="mb-3" style="color: var(--text-primary)">Browse</h6>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('movies_index') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Movies
+                </a>
+              </li>
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('search') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Search
+                </a>
+              </li>
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('recommendations') if current_user.is_authenticated else url_for('login') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Recommendations
+                </a>
+              </li>
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('continue_watching') if current_user.is_authenticated else url_for('login') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Continue Watching
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-md-4 mb-4">
+            <h6 class="mb-3" style="color: var(--text-primary)">Account</h6>
+            <ul class="list-unstyled">
+              {% if current_user.is_authenticated %}
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('dashboard') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Dashboard
+                </a>
+              </li>
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('profiles') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Profiles
+                </a>
+              </li>
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('logout') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Logout
+                </a>
+              </li>
+              {% else %}
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('login') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Login
+                </a>
+              </li>
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('register') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Register
+                </a>
+              </li>
+              {% endif %}
+              <li class="mb-2">
+                <a
+                  href="{{ url_for('forgot_password') }}"
+                  class="text-secondary text-decoration-none"
+                >
+                  Forgot Password
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-lg-4 col-md-4 mb-4">
+            <h6 class="mb-3" style="color: var(--text-primary)">
+              Stay Updated
+            </h6>
+            <p class="text-secondary mb-3">
+              Subscribe to our newsletter for the latest movie releases and
+              platform updates.
+            </p>
+            <form class="d-flex">
+              <input
+                type="email"
+                class="form-control me-2"
+                placeholder="Your email"
+                style="
+                  background: var(--secondary-dark);
+                  border-color: var(--border-color);
+                  color: var(--text-primary);
+                "
+              />
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </form>
+            <div class="mt-4">
+              <p class="text-secondary mb-2">
+                <i class="fas fa-envelope me-2"></i>support@cinewave.com
+              </p>
+              <p class="text-secondary mb-0">
+                <i class="fas fa-phone me-2"></i>+1 (555) 123-4567
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-secondary my-4" />
+
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <p class="text-secondary mb-0">
+              &copy; 2024 CineWave. All rights reserved.
+            </p>
+          </div>
+          <!-- In base.html footer, update the links section -->
+          <div class="col-md-6 text-md-end">
+            <div class="d-flex gap-3 justify-content-md-end">
+              <a
+                href="{{ url_for('privacy') }}"
+                class="text-secondary text-decoration-none"
+                >Privacy Policy</a
+              >
+              <a
+                href="{{ url_for('terms') }}"
+                class="text-secondary text-decoration-none"
+                >Terms of Service</a
+              >
+              <a
+                href="{{ url_for('cookies') }}"
+                class="text-secondary text-decoration-none"
+                >Cookie Policy</a
+              >
+              <a href="{{ url_for('help') }}">Help</a>
+              <a
+                href="{{ url_for('contact') }}"
+                class="text-secondary text-decoration-none"
+                >Contact</a
+              >
+              <a
+                href="{{ url_for('faq') }}"
+                class="text-secondary text-decoration-none"
+                >FAQ</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- PWA Install Banner (Hidden by default) -->
+        <div
+          class="mt-4 p-3 rounded"
+          id="pwaInstallBanner"
+          style="
+            background: var(--card-bg);
+            border: 1px solid var(--primary-blue);
+            display: none;
+          "
+        >
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h6 class="mb-1" style="color: var(--primary-blue)">
+                <i class="fas fa-mobile-alt me-2"></i>Install CineWave App
+              </h6>
+              <p class="text-secondary small mb-0">
+                Get the best experience with our app. Works offline!
+              </p>
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                onclick="dismissPwaBanner()"
+              >
+                Not Now
+              </button>
+              <button class="btn btn-sm btn-primary" id="pwaInstallBtn">
+                Install
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script>
+      // Global variables
+      window.userIsAuthenticated = {{ current_user.is_authenticated|tojson|safe }};
+      window.currentUserId = {{ current_user.id if current_user.is_authenticated else 'null' }};
+
+      // CSRF Token for AJAX requests
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+      // Global configuration
+      const config = {
+          apiBaseUrl: window.location.origin,
+          wsUrl: window.location.origin.replace('http', 'ws') + '/ws',
+          theme: localStorage.getItem('theme') || 'dark',
+          notificationsEnabled: true
+      };
+    </script>
+
+    <!-- Core JavaScript Files -->
+    <script src="{{ url_for('static', filename='js/toggle_password.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pwa_sw_register.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+
+    <!-- Service Worker Registration -->
+    <script>
+      // Register service worker for PWA
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("/service-worker.js")
+            .then(function (registration) {
+              console.log(
+                "ServiceWorker registration successful with scope: ",
+                registration.scope
+              );
+
+              // Check for updates
+              registration.addEventListener("updatefound", () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener("statechange", () => {
+                  if (
+                    newWorker.state === "installed" &&
+                    navigator.serviceWorker.controller
+                  ) {
+                    showUpdateNotification();
+                  }
+                });
+              });
+            })
+            .catch(function (err) {
+              console.log("ServiceWorker registration failed: ", err);
+            });
+        });
+      }
+
+      // Handle install prompt
+      let deferredPrompt;
+      window.addEventListener("beforeinstallprompt", (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        // Show install button and banner
+        showInstallButton();
+        showPwaBanner();
+      });
+
+      function showInstallButton() {
+        const installButton = document.getElementById("installButton");
+        const installButtonDropdown = document.getElementById("pwaInstallBtn");
+
+        if (installButton) {
+          installButton.style.display = "block";
+          installButton.addEventListener("click", async () => {
+            await triggerInstall();
+          });
+        }
+
+        if (installButtonDropdown) {
+          installButtonDropdown.addEventListener("click", async () => {
+            await triggerInstall();
+          });
+        }
+      }
+
+      function showPwaBanner() {
+        const banner = document.getElementById("pwaInstallBanner");
+        const dismissed = localStorage.getItem("pwaBannerDismissed");
+
+        if (banner && !dismissed) {
+          banner.style.display = "block";
+        }
+      }
+
+      function dismissPwaBanner() {
+        const banner = document.getElementById("pwaInstallBanner");
+        if (banner) {
+          banner.style.display = "none";
+          localStorage.setItem("pwaBannerDismissed", "true");
+        }
+      }
+
+      async function triggerInstall() {
+        if (!deferredPrompt) return;
+
+        // Hide banner
+        dismissPwaBanner();
+
+        // Show the install prompt
+        deferredPrompt.prompt();
+
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+
+        // We've used the prompt, and can't use it again, discard it
+        deferredPrompt = null;
+
+        // Hide install buttons
+        const installButton = document.getElementById("installButton");
+        if (installButton) installButton.style.display = "none";
+      }
+
+      function showUpdateNotification() {
+        // Create update notification
+        const notification = document.createElement("div");
+        notification.className = "alert alert-info alert-dismissible fade show";
+        notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    <div>
+                        <strong>Update Available!</strong>
+                        <p class="mb-0 small">A new version of CineWave is available.</p>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="location.reload()">
+                        Refresh Now
+                    </button>
+                </div>
+            `;
+
+        const container = document.querySelector(".container.mt-3.pt-5");
+        if (container) {
+          container.prepend(notification);
+        }
+      }
+
+      // Initialize theme toggle
+      document.addEventListener("DOMContentLoaded", function () {
+        // Theme toggle for dropdown item
+        const themeToggleDropdown = document.getElementById(
+          "themeToggleDropdown"
+        );
+        if (themeToggleDropdown) {
+          themeToggleDropdown.addEventListener("click", function (e) {
+            e.preventDefault();
+            toggleTheme();
+          });
+        }
+
+        // Theme toggle for mobile button
+        const themeToggleMobile = document.getElementById("themeToggleMobile");
+        if (themeToggleMobile) {
+          themeToggleMobile.addEventListener("click", toggleTheme);
+        }
+
+        // Theme toggle for guest button
+        const themeToggleGuest = document.getElementById("themeToggleGuest");
+        if (themeToggleGuest) {
+          themeToggleGuest.addEventListener("click", toggleTheme);
+        }
+
+        function toggleTheme() {
+          const currentTheme =
+            document.documentElement.getAttribute("data-theme");
+          const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+          // Update theme
+          document.documentElement.setAttribute("data-theme", newTheme);
+          localStorage.setItem("theme", newTheme);
+
+          // Update theme icon
+          updateThemeIcon(newTheme);
+
+          // Save to server if user is logged in
+          if (window.userIsAuthenticated) {
+            fetch("/toggle_theme", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken,
+              },
+              body: JSON.stringify({ theme: newTheme }),
+            }).catch(console.error);
+          }
+        }
+
+        function updateThemeIcon(theme) {
+          const icons = document.querySelectorAll(".fa-moon, .fa-sun");
+          icons.forEach((icon) => {
+            if (theme === "dark") {
+              icon.classList.remove("fa-moon");
+              icon.classList.add("fa-sun");
+            } else {
+              icon.classList.remove("fa-sun");
+              icon.classList.add("fa-moon");
+            }
+          });
+
+          // Update button titles
+          const buttons = document.querySelectorAll('[title*="Switch"]');
+          buttons.forEach((button) => {
+            if (theme === "dark") {
+              button.setAttribute("title", "Switch to Light Mode");
+            } else {
+              button.setAttribute("title", "Switch to Dark Mode");
+            }
+          });
+        }
+
+        // Set initial theme icon
+        const savedTheme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        updateThemeIcon(savedTheme);
+
+        // Listen for system theme changes
+        window
+          .matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", (e) => {
+            if (!localStorage.getItem("theme")) {
+              const newTheme = e.matches ? "dark" : "light";
+              document.documentElement.setAttribute("data-theme", newTheme);
+              updateThemeIcon(newTheme);
+            }
+          });
+      });
+
+      // Notification functions
+      function markAllAsRead() {
+        if (!window.userIsAuthenticated) return;
+
+        fetch("/notifications/mark_all_read", {
+          method: "POST",
+          headers: {
+            "X-CSRF-Token": csrfToken,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              document.getElementById("notificationCount").style.display =
+                "none";
+              const notificationList =
+                document.getElementById("notificationList");
+              notificationList.innerHTML = `
+                        <li class="px-3 py-2 text-center text-secondary">
+                            <i class="fas fa-bell-slash fa-lg mb-2"></i>
+                            <p class="mb-0 small">No notifications</p>
+                        </li>
+                    `;
+            }
+          })
+          .catch(console.error);
+      }
+
+      // Auto-hide alerts after 5 seconds
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+          const alerts = document.querySelectorAll(
+            ".alert:not(.alert-permanent)"
+          );
+          alerts.forEach((alert) => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+          });
+        }, 5000);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,265 @@
+{% extends "base.html" %} {% block title %}Server Error - CineWave{% endblock %}
+{% block content %}
+<div class="container mt-5 pt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+      <div class="mb-5">
+        <div class="display-1 fw-bold" style="color: var(--danger)">500</div>
+        <h1 class="display-5 fw-bold mb-3" style="color: var(--text-primary)">
+          Internal Server Error
+        </h1>
+        <p class="lead text-secondary mb-4">
+          Something went wrong on our end. Our team has been notified and we're
+          working to fix it. Please try again in a few moments.
+        </p>
+
+        <div
+          class="alert alert-warning mb-4"
+          style="
+            background-color: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+          "
+        >
+          <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+            <div>
+              <strong>Technical Details</strong>
+              <p class="mb-0 small">
+                Error ID: {{ request.id if request.id else 'N/A' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 justify-content-center mb-5">
+          <button onclick="location.reload()" class="btn btn-primary btn-lg">
+            <i class="fas fa-redo me-2"></i>Refresh Page
+          </button>
+          <a
+            href="{{ url_for('home') }}"
+            class="btn btn-outline-primary btn-lg"
+          >
+            <i class="fas fa-home me-2"></i>Go to Home
+          </a>
+        </div>
+
+        <!-- Status Check -->
+        <div class="row mt-4">
+          <div class="col-md-4 mb-3">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body text-center">
+                <div class="mb-3">
+                  <i
+                    class="fas fa-server fa-2x"
+                    style="color: var(--primary-blue)"
+                  ></i>
+                </div>
+                <h6 class="card-title">Server Status</h6>
+                <div class="mt-2">
+                  <span class="badge bg-success">Operational</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body text-center">
+                <div class="mb-3">
+                  <i
+                    class="fas fa-database fa-2x"
+                    style="color: var(--primary-blue)"
+                  ></i>
+                </div>
+                <h6 class="card-title">Database</h6>
+                <div class="mt-2">
+                  <span class="badge bg-success">Connected</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div
+              class="card h-100"
+              style="
+                background: var(--card-bg);
+                border-color: var(--border-color);
+              "
+            >
+              <div class="card-body text-center">
+                <div class="mb-3">
+                  <i
+                    class="fas fa-wifi fa-2x"
+                    style="color: var(--primary-blue)"
+                  ></i>
+                </div>
+                <h6 class="card-title">API Status</h6>
+                <div class="mt-2">
+                  <span class="badge bg-success">Online</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Troubleshooting Tips -->
+        <div class="mt-5">
+          <h4 class="h5 mb-3" style="color: var(--text-primary)">
+            Troubleshooting Tips
+          </h4>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div
+                class="card h-100"
+                style="
+                  background: var(--card-bg);
+                  border-color: var(--border-color);
+                "
+              >
+                <div class="card-body">
+                  <div class="d-flex align-items-start mb-2">
+                    <i
+                      class="fas fa-redo me-3"
+                      style="color: var(--primary-blue)"
+                    ></i>
+                    <div>
+                      <h6 class="card-title mb-1">Refresh Your Browser</h6>
+                      <p class="text-secondary small mb-0">
+                        Press F5 or click refresh to reload the page.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div
+                class="card h-100"
+                style="
+                  background: var(--card-bg);
+                  border-color: var(--border-color);
+                "
+              >
+                <div class="card-body">
+                  <div class="d-flex align-items-start mb-2">
+                    <i
+                      class="fas fa-trash-alt me-3"
+                      style="color: var(--primary-blue)"
+                    ></i>
+                    <div>
+                      <h6 class="card-title mb-1">Clear Browser Cache</h6>
+                      <p class="text-secondary small mb-0">
+                        Clear cached files and cookies in your browser settings.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div
+                class="card h-100"
+                style="
+                  background: var(--card-bg);
+                  border-color: var(--border-color);
+                "
+              >
+                <div class="card-body">
+                  <div class="d-flex align-items-start mb-2">
+                    <i
+                      class="fas fa-sign-out-alt me-3"
+                      style="color: var(--primary-blue)"
+                    ></i>
+                    <div>
+                      <h6 class="card-title mb-1">Log Out & Back In</h6>
+                      <p class="text-secondary small mb-0">
+                        Try logging out and then logging back into your account.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div
+                class="card h-100"
+                style="
+                  background: var(--card-bg);
+                  border-color: var(--border-color);
+                "
+              >
+                <div class="card-body">
+                  <div class="d-flex align-items-start mb-2">
+                    <i
+                      class="fas fa-clock me-3"
+                      style="color: var(--primary-blue)"
+                    ></i>
+                    <div>
+                      <h6 class="card-title mb-1">Wait a Few Minutes</h6>
+                      <p class="text-secondary small mb-0">
+                        Sometimes temporary issues resolve on their own.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Support -->
+      <div
+        class="mt-5 pt-5 border-top"
+        style="border-color: var(--border-color) !important"
+      >
+        <h4 class="h5 mb-3" style="color: var(--text-primary)">
+          Still Having Issues?
+        </h4>
+        <p class="text-secondary mb-4">
+          If the problem persists, please contact our support team with the
+          error details.
+        </p>
+        <div class="d-flex flex-wrap gap-3 justify-content-center">
+          <a href="{{ url_for('help_center') }}" class="btn btn-primary">
+            <i class="fas fa-question-circle me-2"></i>Help Center
+          </a>
+          <a href="mailto:support@cinewave.com" class="btn btn-outline-primary">
+            <i class="fas fa-envelope me-2"></i>Email Support
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-refresh after 30 seconds if user is idle
+  let idleTimer;
+  function resetIdleTimer() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        location.reload();
+      }
+    }, 30000); // 30 seconds
+  }
+
+  // Reset timer on user activity
+  document.addEventListener("mousemove", resetIdleTimer);
+  document.addEventListener("keypress", resetIdleTimer);
+  document.addEventListener("click", resetIdleTimer);
+  resetIdleTimer();
+</script>
+{% endblock %}

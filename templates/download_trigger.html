@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Downloading {{ movie.title }}</title>
+    <script>
+      // Automatically trigger the download
+      window.onload = function () {
+        console.log("Triggering download for: {{ movie.title }}");
+        console.log("Download URL: {{ download_url }}");
+
+        // Create a hidden iframe to trigger the download
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = "{{ download_url }}";
+        document.body.appendChild(iframe);
+
+        // Redirect back to movie detail page after 2 seconds
+        setTimeout(function () {
+          window.location.href =
+            "{{ url_for('movie_detail', movie_id=movie.id) }}";
+        }, 2000);
+      };
+    </script>
+  </head>
+  <body>
+    <div style="text-align: center; padding: 50px">
+      <h1>Downloading {{ movie.title }}</h1>
+      <p>Your download should start automatically...</p>
+      <p>
+        If the download doesn't start,
+        <a href="{{ download_url }}">click here</a>.
+      </p>
+      <p>You will be redirected back to the movie page shortly.</p>
+    </div>
+  </body>
+</html>
