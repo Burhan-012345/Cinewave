@@ -1,0 +1,1622 @@
+{% extends "base.html" %} {% block title %}Register - CineWave{% endblock %} {%
+block head %}
+<style>
+  /* All your existing CSS styles remain the same */
+  .oauth-login-container {
+    margin: 30px 0;
+    text-align: center;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .divider span {
+    padding: 0 15px;
+    background: var(--card-bg);
+  }
+
+  .google-login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+    padding: 14px 24px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: "Google Sans", "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: button;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin: 0 auto;
+  }
+
+  .google-login-btn:hover {
+    background: var(--card-hover);
+    border-color: var(--primary-blue);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .google-login-btn:active {
+    background: var(--tertiary-dark);
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .google-icon {
+    flex-shrink: 0;
+  }
+
+  .btn-text {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .oauth-note {
+    margin-top: 12px;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  /* Fix for congestion issues */
+  .container.register-container {
+    margin-top: 2rem !important;
+    padding-top: 1rem !important;
+  }
+
+  .register-card {
+    max-width: 800px;
+    margin: 0 auto;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .register-card .card-body {
+    padding: 2.5rem !important;
+  }
+
+  @media (max-width: 768px) {
+    .register-card .card-body {
+      padding: 1.5rem !important;
+    }
+
+    .container.register-container {
+      margin-top: 1rem !important;
+      padding-top: 0.5rem !important;
+    }
+  }
+
+  .form-control-lg-custom {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  .password-toggle {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 1px solid var(--border-color) !important;
+  }
+
+  .input-group:focus-within {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+  }
+
+  .input-group-text {
+    background-color: var(--tertiary-dark);
+    border-right: 0;
+    color: var(--text-secondary);
+  }
+
+  /* Improve spacing */
+  .mb-4 {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .row.g-4 > [class*="col-"] {
+    padding-bottom: 1rem;
+  }
+
+  /* Form text visibility */
+  .form-text {
+    color: var(--text-secondary) !important;
+    margin-top: 0.25rem;
+  }
+
+  /* Checkbox styling */
+  .form-check-label {
+    color: var(--text-primary);
+  }
+
+  .form-check-input:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+
+  /* Text colors for dark theme */
+  body.theme-dark .form-check-label,
+  body.theme-dark .form-text,
+  body.theme-dark .form-label {
+    color: #ffffff !important;
+  }
+
+  body.theme-light .form-check-label,
+  body.theme-light .form-text,
+  body.theme-light .form-label {
+    color: #1e293b !important;
+  }
+
+  /* Placeholder text */
+  ::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+  }
+
+  /* Password info button */
+  .password-info-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    margin-left: 0.5rem;
+  }
+
+  .password-info-btn:hover {
+    color: var(--primary-blue);
+  }
+
+  .form-label-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  /* OTP Section - initially hidden */
+  #otpSection {
+    display: none;
+  }
+
+  /* Password fields - initially hidden */
+  #passwordFields {
+    display: none;
+  }
+
+  /* Modal styles */
+  .password-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1050;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .password-modal.show {
+    display: flex;
+  }
+
+  .password-modal-content {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .password-modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .password-modal-title {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .password-modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .password-modal-close:hover {
+    background-color: var(--tertiary-dark);
+    color: var(--danger);
+  }
+
+  .password-modal-body {
+    padding: 1.5rem;
+  }
+
+  .password-rule {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--secondary-dark);
+    border-radius: 6px;
+    border-left: 3px solid var(--info);
+  }
+
+  .password-rule.valid {
+    border-left-color: var(--success);
+  }
+
+  .password-rule.invalid {
+    border-left-color: var(--danger);
+  }
+
+  .rule-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  .rule-icon.valid {
+    color: var(--success);
+  }
+
+  .rule-icon.invalid {
+    color: var(--danger);
+  }
+
+  .rule-text {
+    flex: 1;
+  }
+
+  .rule-title {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .rule-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .password-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+  }
+
+  .password-strength-meter {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--secondary-dark);
+    border-radius: 6px;
+  }
+
+  .strength-title {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .strength-bar {
+    height: 6px;
+    background: var(--tertiary-dark);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+
+  .strength-fill.weak {
+    background-color: var(--danger);
+    width: 25%;
+  }
+
+  .strength-fill.fair {
+    background-color: var(--warning);
+    width: 50%;
+  }
+
+  .strength-fill.good {
+    background-color: var(--info);
+    width: 75%;
+  }
+
+  .strength-fill.strong {
+    background-color: var(--success);
+    width: 100%;
+  }
+
+  .strength-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  /* Progress steps */
+  .registration-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+    padding: 0 20px;
+  }
+
+  .registration-steps::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border-color);
+    z-index: 1;
+  }
+
+  .step {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--tertiary-dark);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .step.active .step-circle {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: white;
+  }
+
+  .step.completed .step-circle {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .step-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .step.active .step-label {
+    color: var(--primary-blue);
+    font-weight: 500;
+  }
+
+  .step.completed .step-label {
+    color: var(--success);
+  }
+
+  @media (max-width: 576px) {
+    .password-modal-content {
+      width: 95%;
+      margin: 1rem;
+    }
+
+    .password-modal-body {
+      padding: 1rem;
+    }
+
+    .registration-steps {
+      padding: 0 10px;
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+<script
+  src="{{ url_for('static', filename='js/password_validation.js') }}"
+  defer
+></script>
+{% endblock %} {% block content %}
+<div class="container register-container">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-10 col-xl-8">
+      <div
+        class="card shadow-lg register-card"
+        style="background: var(--card-bg); border-color: var(--border-color)"
+      >
+        <div class="card-body p-4 p-md-5">
+          <h2 class="text-center mb-4" style="color: var(--primary-blue)">
+            <i class="fas fa-user-plus me-2"></i>Create Your Account
+          </h2>
+
+          <!-- Registration Progress Steps -->
+          <div class="registration-steps">
+            <div class="step active" id="stepEmail">
+              <div class="step-circle">1</div>
+              <div class="step-label">Email</div>
+            </div>
+            <div class="step" id="stepVerify">
+              <div class="step-circle">2</div>
+              <div class="step-label">Verify OTP</div>
+            </div>
+            <div class="step" id="stepPassword">
+              <div class="step-circle">3</div>
+              <div class="step-label">Password</div>
+            </div>
+            <div class="step" id="stepComplete">
+              <div class="step-circle">4</div>
+              <div class="step-label">Complete</div>
+            </div>
+          </div>
+
+          <form
+            method="POST"
+            action="{{ url_for('register') }}"
+            id="registerForm"
+          >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <!-- Store registration state in hidden fields -->
+            <input
+              type="hidden"
+              id="emailVerified"
+              name="email_verified"
+              value="0"
+            />
+            <input
+              type="hidden"
+              id="otpVerified"
+              name="otp_verified"
+              value="0"
+            />
+
+            <div class="row g-4">
+              <!-- Full Name -->
+              <div class="col-md-6">
+                <label for="name" class="form-label">Full Name</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-user"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control form-control-lg-custom"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your full name"
+                    required
+                    style="
+                      color: var(--text-primary);
+                      background-color: var(--secondary-dark);
+                    "
+                  />
+                </div>
+                <small class="form-text">Enter your first and last name</small>
+              </div>
+
+              <!-- Email Address with Send OTP Button -->
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                  <input
+                    type="email"
+                    class="form-control form-control-lg-custom"
+                    id="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    required
+                    style="
+                      color: var(--text-primary);
+                      background-color: var(--secondary-dark);
+                    "
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    id="sendOtpBtn"
+                    onclick="sendOTP()"
+                    style="
+                      border-color: var(--border-color);
+                      color: var(--primary-blue);
+                    "
+                  >
+                    Send OTP
+                  </button>
+                </div>
+                <small class="form-text">We'll never share your email</small>
+                <div
+                  id="otpTimer"
+                  class="form-text"
+                  style="display: none"
+                ></div>
+              </div>
+            </div>
+
+            <!-- OTP Section - Initially hidden -->
+            <div class="row g-4 mt-2" id="otpSection">
+              <div class="col-12">
+                <div class="mb-3">
+                  <label for="otp" class="form-label">Verification OTP</label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-shield-alt"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control form-control-lg-custom"
+                      id="otp"
+                      name="otp"
+                      placeholder="Enter 6-digit OTP"
+                      maxlength="6"
+                      style="
+                        color: var(--text-primary);
+                        background-color: var(--secondary-dark);
+                      "
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary"
+                      onclick="verifyOTP()"
+                      id="verifyOtpBtn"
+                    >
+                      <i class="fas fa-check me-1"></i>Verify OTP
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      onclick="resendOTP()"
+                      id="resendBtn"
+                      style="display: none"
+                    >
+                      <i class="fas fa-redo me-1"></i>Resend
+                    </button>
+                  </div>
+                  <small class="form-text" id="otpMessage">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Enter your email and click "Send OTP" to receive a
+                    verification code.
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Fields - Initially hidden -->
+            <div id="passwordFields">
+              <div class="row g-4 mt-2">
+                <!-- Password -->
+                <div class="col-md-6">
+                  <div class="form-label-container">
+                    <label for="password" class="form-label">Password</label>
+                    <button
+                      type="button"
+                      class="password-info-btn"
+                      onclick="showPasswordModal()"
+                      title="View password requirements"
+                      aria-label="View password requirements"
+                    >
+                      <i class="fas fa-info-circle"></i>
+                    </button>
+                  </div>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-lock"></i>
+                    </span>
+                    <input
+                      type="password"
+                      class="form-control form-control-lg-custom password-validate"
+                      id="password"
+                      name="password"
+                      placeholder="Create a strong password"
+                      style="
+                        color: var(--text-primary);
+                        background-color: var(--secondary-dark);
+                      "
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary password-toggle"
+                      data-target="password"
+                      aria-label="Toggle password visibility"
+                      style="
+                        border-color: var(--border-color);
+                        color: var(--text-secondary);
+                      "
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-md-6">
+                  <label for="confirmPassword" class="form-label"
+                    >Confirm Password</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-lock"></i>
+                    </span>
+                    <input
+                      type="password"
+                      class="form-control form-control-lg-custom confirm-password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      data-match="password"
+                      placeholder="Re-enter your password"
+                      style="
+                        color: var(--text-primary);
+                        background-color: var(--secondary-dark);
+                      "
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary password-toggle"
+                      data-target="confirmPassword"
+                      aria-label="Toggle password visibility"
+                      style="
+                        border-color: var(--border-color);
+                        color: var(--text-secondary);
+                      "
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Terms and Conditions -->
+              <div class="row g-4 mt-2">
+                <div class="col-12">
+                  <div class="mb-3 form-check">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="terms"
+                      name="terms"
+                      required
+                    />
+                    <label class="form-check-label" for="terms">
+                      I agree to the
+                      <a
+                        href="{{ url_for('terms') }}"
+                        class="text-decoration-none"
+                        style="color: var(--primary-blue)"
+                      >
+                        Terms of Service
+                      </a>
+                      and
+                      <a
+                        href="{{ url_for('privacy') }}"
+                        class="text-decoration-none"
+                        style="color: var(--primary-blue)"
+                      >
+                        Privacy Policy
+                      </a>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="row g-4 mt-2">
+                <div class="col-12">
+                  <div class="d-grid gap-2">
+                    <button
+                      type="submit"
+                      class="btn btn-primary btn-lg"
+                      id="submitBtn"
+                    >
+                      <i class="fas fa-user-plus me-2"></i>
+                      Create Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <!-- Divider -->
+          <div class="row g-4 mt-4">
+            <div class="col-12">
+              <div class="divider">
+                <span>or continue with</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Sign Up -->
+          <div class="row g-4">
+            <div class="col-12 text-center">
+              <div class="oauth-login-container">
+                <a
+                  href="{{ url_for('oauth.google_login_redirect') }}"
+                  class="google-login-btn"
+                >
+                  <svg
+                    class="google-icon"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                  >
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  <span class="btn-text">Sign up with Google</span>
+                </a>
+
+                <div class="oauth-note">
+                  <small
+                    >We'll only use your Google account for
+                    authentication.</small
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Login Link -->
+          <div class="row g-4 mt-4">
+            <div class="col-12">
+              <div class="text-center">
+                <p class="mb-0" style="color: var(--text-primary)">
+                  Already have an account?
+                  <a
+                    href="{{ url_for('login') }}"
+                    class="text-decoration-none fw-semibold"
+                    style="color: var(--primary-blue)"
+                  >
+                    Login here
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Password Requirements Modal -->
+<div id="passwordModal" class="password-modal" aria-hidden="true">
+  <div class="password-modal-content">
+    <div class="password-modal-header">
+      <h3 class="password-modal-title">
+        <i class="fas fa-shield-alt me-2"></i>Password Requirements
+      </h3>
+      <button
+        type="button"
+        class="password-modal-close"
+        onclick="hidePasswordModal()"
+        aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+    <div class="password-modal-body">
+      <div class="password-rule">
+        <div class="rule-icon valid">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="rule-text">
+          <div class="rule-title">At least 8 characters</div>
+          <div class="rule-description">
+            Your password should be a minimum of 8 characters long for better
+            security.
+          </div>
+        </div>
+      </div>
+
+      <div class="password-rule">
+        <div class="rule-icon valid">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="rule-text">
+          <div class="rule-title">Uppercase and lowercase letters</div>
+          <div class="rule-description">
+            Include at least one uppercase (A-Z) and one lowercase (a-z) letter.
+          </div>
+        </div>
+      </div>
+
+      <div class="password-rule">
+        <div class="rule-icon valid">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="rule-text">
+          <div class="rule-title">Include numbers</div>
+          <div class="rule-description">
+            Add at least one number (0-9) to make your password stronger.
+          </div>
+        </div>
+      </div>
+
+      <div class="password-rule">
+        <div class="rule-icon valid">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="rule-text">
+          <div class="rule-title">Special characters</div>
+          <div class="rule-description">
+            Use at least one special character like ! @ # $ % ^ & * ( ) _ +
+          </div>
+        </div>
+      </div>
+
+      <div class="password-rule">
+        <div class="rule-icon valid">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="rule-text">
+          <div class="rule-title">No spaces</div>
+          <div class="rule-description">
+            Avoid using spaces in your password. Use underscores or dashes
+            instead.
+          </div>
+        </div>
+      </div>
+
+      <div class="password-strength-meter">
+        <div class="strength-title">Password Strength</div>
+        <div class="strength-bar">
+          <div class="strength-fill" id="strengthFill"></div>
+        </div>
+        <div class="strength-text" id="strengthText">
+          Start typing to see strength
+        </div>
+      </div>
+    </div>
+    <div class="password-modal-footer">
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="hidePasswordModal()"
+      >
+        Got it!
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Load the toggle password script -->
+<script src="{{ url_for('static', filename='js/toggle_password.js') }}"></script>
+
+<script>
+  // State management
+  const REGISTRATION_STATE_KEY = "cinewave_registration_state";
+  const SESSION_TIMESTAMP_KEY = "cinewave_registration_timestamp";
+  const SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
+
+  // Password modal functions
+  function showPasswordModal() {
+    const modal = document.getElementById("passwordModal");
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function hidePasswordModal() {
+    const modal = document.getElementById("passwordModal");
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  // Close modal when clicking outside
+  document
+    .getElementById("passwordModal")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        hidePasswordModal();
+      }
+    });
+
+  // Close modal with Escape key
+  document.addEventListener("keydown", function (e) {
+    const modal = document.getElementById("passwordModal");
+    if (e.key === "Escape" && modal.classList.contains("show")) {
+      hidePasswordModal();
+    }
+  });
+
+  // Save registration state to localStorage
+  function saveRegistrationState(state) {
+    try {
+      localStorage.setItem(REGISTRATION_STATE_KEY, JSON.stringify(state));
+      localStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
+    } catch (e) {
+      console.error("Error saving state:", e);
+    }
+  }
+
+  // Load registration state from localStorage
+  function loadRegistrationState() {
+    try {
+      const timestamp = localStorage.getItem(SESSION_TIMESTAMP_KEY);
+
+      // Check if session has expired
+      if (timestamp) {
+        const sessionAge = Date.now() - parseInt(timestamp);
+        if (sessionAge > SESSION_DURATION) {
+          clearRegistrationState();
+          return null;
+        }
+      }
+
+      const saved = localStorage.getItem(REGISTRATION_STATE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error("Error loading state:", e);
+      return null;
+    }
+  }
+
+  // Clear registration state
+  function clearRegistrationState() {
+    localStorage.removeItem(REGISTRATION_STATE_KEY);
+    localStorage.removeItem(SESSION_TIMESTAMP_KEY);
+  }
+
+  // Check if page was refreshed
+  function isPageRefresh() {
+    return (
+      performance.navigation.type === 1 ||
+      (performance.getEntriesByType &&
+        performance.getEntriesByType("navigation")[0]?.type === "reload")
+    );
+  }
+
+  // Update progress steps
+  function updateProgressSteps(currentStep) {
+    const steps = ["stepEmail", "stepVerify", "stepPassword", "stepComplete"];
+
+    steps.forEach((stepId, index) => {
+      const step = document.getElementById(stepId);
+      if (step) {
+        step.classList.remove("active", "completed");
+
+        if (index < currentStep) {
+          step.classList.add("completed");
+        } else if (index === currentStep) {
+          step.classList.add("active");
+        }
+      }
+    });
+  }
+
+  // Send OTP
+  async function sendOTP() {
+    const email = document.getElementById("email").value;
+    const sendBtn = document.getElementById("sendOtpBtn");
+
+    if (!email || !validateEmail(email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    // Disable button and show loading
+    const originalText = sendBtn.innerHTML;
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Sending...';
+
+    try {
+      const response = await fetch('{{ url_for("send_registration_otp") }}', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token() }}",
+        },
+        body: JSON.stringify({ email: email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Show OTP section
+        document.getElementById("otpSection").style.display = "block";
+        updateProgressSteps(1);
+
+        // Update OTP message
+        document.getElementById(
+          "otpMessage"
+        ).innerHTML = `<i class="fas fa-info-circle me-1"></i>OTP sent to ${email}. Valid for 10 minutes.`;
+
+        // Save state
+        saveRegistrationState({
+          email: email,
+          otpSent: true,
+          step: 1,
+        });
+
+        // Start OTP timer
+        startOtpTimer(600); // 10 minutes in seconds
+
+        // Show resend button after 30 seconds
+        setTimeout(() => {
+          document.getElementById("resendBtn").style.display = "block";
+        }, 30000);
+      } else {
+        alert(data.error || "Failed to send OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      // Re-enable send button
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = originalText;
+    }
+  }
+
+  // Verify OTP
+  async function verifyOTP() {
+    const otp = document.getElementById("otp").value;
+    const verifyBtn = document.getElementById("verifyOtpBtn");
+
+    if (!otp || otp.length !== 6) {
+      alert("Please enter a valid 6-digit OTP");
+      return;
+    }
+
+    // Disable button and show loading
+    const originalText = verifyBtn.innerHTML;
+    verifyBtn.disabled = true;
+    verifyBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin me-1"></i>Verifying...';
+
+    try {
+      const response = await fetch('{{ url_for("verify_registration_otp") }}', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token() }}",
+        },
+        body: JSON.stringify({ otp: otp }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Show password fields
+        document.getElementById("passwordFields").style.display = "block";
+        document.getElementById("emailVerified").value = "1";
+        document.getElementById("otpVerified").value = "1";
+        updateProgressSteps(2);
+
+        // Save state
+        const currentState = loadRegistrationState() || {};
+        saveRegistrationState({
+          ...currentState,
+          otpVerified: true,
+          step: 2,
+        });
+
+        alert("Email verified successfully! Now set your password.");
+      } else {
+        alert(data.error || "Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      // Re-enable verify button
+      verifyBtn.disabled = false;
+      verifyBtn.innerHTML = originalText;
+    }
+  }
+
+  // Resend OTP
+  async function resendOTP() {
+    const email = document.getElementById("email").value;
+    const resendBtn = document.getElementById("resendBtn");
+
+    if (!email) {
+      alert("Email is required");
+      return;
+    }
+
+    // Disable button and show loading
+    const originalText = resendBtn.innerHTML;
+    resendBtn.disabled = true;
+    resendBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin me-1"></i>Sending...';
+
+    try {
+      const response = await fetch('{{ url_for("resend_registration_otp") }}', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token() }}",
+        },
+        body: JSON.stringify({ email: email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("OTP resent! Please check your email.");
+        // Restart timer
+        startOtpTimer(600);
+
+        // Hide resend button for 30 seconds
+        resendBtn.style.display = "none";
+        setTimeout(() => {
+          resendBtn.style.display = "block";
+          resendBtn.disabled = false;
+          resendBtn.innerHTML = originalText;
+        }, 30000);
+      } else {
+        alert(data.error || "Failed to resend OTP. Please try again.");
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = originalText;
+      }
+    } catch (error) {
+      console.error("Error resending OTP:", error);
+      alert("An error occurred. Please try again.");
+      resendBtn.disabled = false;
+      resendBtn.innerHTML = originalText;
+    }
+  }
+
+  // OTP Timer
+  function startOtpTimer(duration) {
+    const timerDisplay = document.getElementById("otpTimer");
+    timerDisplay.style.display = "block";
+    timerDisplay.style.color = "var(--text-secondary)";
+
+    let timer = duration;
+    const interval = setInterval(() => {
+      const minutes = Math.floor(timer / 60);
+      const seconds = timer % 60;
+
+      timerDisplay.textContent = `OTP expires in: ${minutes}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
+
+      if (--timer < 0) {
+        clearInterval(interval);
+        timerDisplay.textContent = "OTP has expired. Please request a new one.";
+        timerDisplay.style.color = "var(--danger)";
+
+        // Clear OTP state
+        const currentState = loadRegistrationState() || {};
+        if (currentState.otpSent && !currentState.otpVerified) {
+          document.getElementById("otpSection").style.display = "none";
+          document.getElementById("resendBtn").style.display = "none";
+          updateProgressSteps(0);
+          saveRegistrationState({
+            email: currentState.email,
+            otpSent: false,
+            step: 0,
+          });
+        }
+      }
+    }, 1000);
+  }
+
+  // Email validation
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  // Update password strength in modal
+  function updatePasswordStrength(password) {
+    const strengthFill = document.getElementById("strengthFill");
+    const strengthText = document.getElementById("strengthText");
+
+    if (!password) {
+      strengthFill.className = "strength-fill";
+      strengthFill.style.width = "0%";
+      strengthText.textContent = "Start typing to see strength";
+      return;
+    }
+
+    let score = 0;
+
+    // Length check
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+
+    // Character variety checks
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    // Determine strength
+    let strength = "";
+    let width = "0%";
+
+    if (score <= 2) {
+      strength = "weak";
+      width = "25%";
+      strengthText.textContent =
+        "Weak - Try adding more characters and variety";
+    } else if (score <= 4) {
+      strength = "fair";
+      width = "50%";
+      strengthText.textContent = "Fair - Could be stronger";
+    } else if (score <= 6) {
+      strength = "good";
+      width = "75%";
+      strengthText.textContent = "Good - Strong password";
+    } else {
+      strength = "strong";
+      width = "100%";
+      strengthText.textContent = "Strong - Excellent password!";
+    }
+
+    strengthFill.className = `strength-fill ${strength}`;
+    strengthFill.style.width = width;
+  }
+
+  // Form submission handler
+  async function handleFormSubmit(e) {
+    e.preventDefault(); // Prevent default form submission
+
+    // Check if OTP is verified before allowing password submission
+    const otpVerified = document.getElementById("otpVerified").value === "1";
+    const emailVerified =
+      document.getElementById("emailVerified").value === "1";
+
+    if (!emailVerified || !otpVerified) {
+      alert("Please verify your email with OTP first.");
+      return;
+    }
+
+    // Get form values
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const otp = document.getElementById("otp")
+      ? document.getElementById("otp").value
+      : "";
+
+    // Validate all fields are filled
+    if (!name || !email || !password || !confirmPassword) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Check password match
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    // Check password strength requirements
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters long.");
+      return;
+    }
+
+    // Check password complexity
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(
+      password
+    );
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChars) {
+      alert(
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+      );
+      return;
+    }
+
+    // Check terms agreement
+    const termsChecked = document.getElementById("terms").checked;
+    if (!termsChecked) {
+      alert("You must agree to the Terms of Service and Privacy Policy.");
+      return;
+    }
+
+    // Show loading state
+    const submitBtn = document.getElementById("submitBtn");
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
+
+    try {
+      // Prepare form data
+      const formData = new FormData();
+      formData.append(
+        "csrf_token",
+        document.querySelector('input[name="csrf_token"]').value
+      );
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("confirm_password", confirmPassword);
+      formData.append("otp", otp);
+      formData.append(
+        "email_verified",
+        document.getElementById("emailVerified").value
+      );
+      formData.append(
+        "otp_verified",
+        document.getElementById("otpVerified").value
+      );
+      formData.append("final_step", "true");
+
+      // Send final registration request
+      const response = await fetch('{{ url_for("register") }}', {
+        method: "POST",
+        body: formData,
+      });
+
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+
+        if (data.success) {
+          // Update progress step
+          updateProgressSteps(3);
+
+          // Clear registration state
+          clearRegistrationState();
+
+          // Clear session data
+          try {
+            await fetch('{{ url_for("clear_registration_session") }}', {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector(
+                  'input[name="csrf_token"]'
+                ).value,
+              },
+            });
+          } catch (error) {
+            console.log("Session cleanup optional");
+          }
+
+          // Show success message
+          alert(data.message || "Registration successful!");
+
+          // Redirect if specified
+          if (data.redirect) {
+            window.location.href = data.redirect;
+          } else {
+            window.location.href = '{{ url_for("movies_index") }}';
+          }
+        } else {
+          alert(data.error || "Registration failed. Please try again.");
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+      } else {
+        // Handle non-JSON response (likely HTML fallback)
+        const text = await response.text();
+
+        // Check if response contains error messages
+        if (
+          text.includes("alert") ||
+          text.includes("danger") ||
+          text.includes("error")
+        ) {
+          // Try to extract error message
+          const errorMatch =
+            text.match(/alert\(['"]([^'"]+)['"]\)/) ||
+            text.match(/danger["']>([^<]+)/) ||
+            text.match(/error["']>([^<]+)/);
+
+          if (errorMatch) {
+            alert(errorMatch[1]);
+          } else {
+            alert(
+              "Registration failed. Please check your information and try again."
+            );
+          }
+        } else if (response.ok) {
+          // If response is OK but not JSON, redirect to movies index
+          window.location.href = '{{ url_for("movies_index") }}';
+        } else {
+          alert("Server error. Please try again.");
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    // Check if this is a page refresh
+    const refresh = isPageRefresh();
+
+    // Load saved state
+    const savedState = loadRegistrationState();
+
+    if (savedState && !refresh) {
+      // Only restore state if not a refresh
+      if (savedState.email) {
+        document.getElementById("email").value = savedState.email;
+      }
+
+      // Restore OTP section if OTP was sent
+      if (savedState.otpSent) {
+        document.getElementById("otpSection").style.display = "block";
+        document.getElementById("resendBtn").style.display = "block";
+
+        // Update OTP message
+        document.getElementById(
+          "otpMessage"
+        ).innerHTML = `<i class="fas fa-info-circle me-1"></i>OTP sent to ${savedState.email}. Valid for 10 minutes.`;
+
+        // Show timer
+        document.getElementById("otpTimer").style.display = "block";
+        document.getElementById("otpTimer").textContent = "OTP active";
+      }
+
+      // Restore password fields if OTP was verified
+      if (savedState.otpVerified) {
+        document.getElementById("passwordFields").style.display = "block";
+        document.getElementById("emailVerified").value = "1";
+        document.getElementById("otpVerified").value = "1";
+      }
+
+      // Update progress steps
+      if (savedState.step !== undefined) {
+        updateProgressSteps(savedState.step);
+      }
+    } else if (refresh) {
+      // Clear state on refresh
+      clearRegistrationState();
+
+      // Reset progress steps to initial state
+      updateProgressSteps(0);
+
+      // Clear any OTP timers
+      document.getElementById("otpTimer").style.display = "none";
+    }
+
+    // Add event listeners
+    const passwordInput = document.getElementById("password");
+    if (passwordInput) {
+      passwordInput.addEventListener("input", function () {
+        updatePasswordStrength(this.value);
+      });
+    }
+
+    // Form submission handler - attach to form
+    const form = document.getElementById("registerForm");
+    if (form) {
+      form.addEventListener("submit", handleFormSubmit);
+    }
+
+    // Add click handler to submit button as well (for extra safety)
+    const submitBtn = document.getElementById("submitBtn");
+    if (submitBtn) {
+      submitBtn.addEventListener("click", function (e) {
+        // If the form is visible, let the form submit handler handle it
+        if (
+          document.getElementById("passwordFields").style.display === "block"
+        ) {
+          // The form submit handler will handle it
+          return;
+        }
+      });
+    }
+
+    // Save state before leaving page
+    window.addEventListener("beforeunload", function () {
+      const email = document.getElementById("email").value;
+      const otpSectionVisible =
+        document.getElementById("otpSection").style.display === "block";
+      const passwordFieldsVisible =
+        document.getElementById("passwordFields").style.display === "block";
+
+      if (email || otpSectionVisible || passwordFieldsVisible) {
+        const state = {
+          email: email,
+          otpSent: otpSectionVisible,
+          otpVerified: passwordFieldsVisible,
+          step: passwordFieldsVisible ? 2 : otpSectionVisible ? 1 : 0,
+        };
+        saveRegistrationState(state);
+      }
+    });
+
+    // Clear state when user leaves the registration process
+    const loginLink = document.querySelector('a[href*="login"]');
+    if (loginLink) {
+      loginLink.addEventListener("click", function () {
+        clearRegistrationState();
+      });
+    }
+  });
+</script>
+{% endblock %}
